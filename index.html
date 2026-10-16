@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>算法预测终端</title>
+<style>
+:root{
+  --bg:#f4f6fa;
+  --card:#ffffff;
+  --border:#e6eaf0;
+  --border-2:#eef2f7;
+  --txt:#1f2d3d;
+  --txt2:#7b8a9c;
+  --blue:#2f6fed;
+  --blue-soft:#eef4ff;
+  --green:#12a150;
+  --green-soft:#ecfdf3;
+  --red:#e5484d;
+  --red-soft:#fff3f3;
+  --amber:#b45309;
+  --amber-soft:#fffbeb;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{width:100%;max-width:100vw;overflow-x:hidden;}
+body{
+  width:100%;max-width:100vw;min-height:100vh;min-height:100dvh;
+  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  color:var(--txt);
+  background:var(--bg);
+  overflow-x:hidden;
+  position:relative;
+  -webkit-font-smoothing:antialiased;
+  line-height:1.5;
+}
+#customBg{
+  position:fixed;inset:0;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+  z-index:0;pointer-events:none;
+}
+body.has-custom-bg{background:transparent;}
+body.has-custom-bg .main-container{position:relative;z-index:1;}
+body.has-custom-bg .card,
+body.has-custom-bg .topbar,
+body.has-custom-bg .toolbar,
+body.has-custom-bg .announce-bar,
+body.has-custom-bg .main-card{background:rgba(255,255,255,.95);}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:#cfd8e3;border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ===== 主容器 ===== */
+.main-container{
+  display:flex;flex-direction:column;gap:10px;
+  width:100%;max-width:720px;margin:0 auto;
+  padding:12px 12px 28px;
+  min-height:100vh;
+}
+
+/* ===== 公告 ===== */
+.announce-bar{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;
+}
+.announce-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;font-size:12.5px;font-weight:700;color:var(--txt);
+  cursor:pointer;user-select:none;
+}
+.announce-header .toggle-icon{font-size:11px;color:var(--txt2);transition:transform .25s;}
+.announce-header.collapsed .toggle-icon{transform:rotate(-90deg);}
+.announce-body{
+  max-height:400px;overflow:hidden;font-size:11.5px;line-height:2;
+  color:var(--txt2);padding:0 14px 12px;
+  transition:max-height .3s ease,padding .3s ease;
+}
+.announce-body.collapsed{max-height:0;padding-top:0;padding-bottom:0;}
+.announce-body .hl{color:var(--txt);font-weight:700;}
+.announce-body .divider{height:1px;background:var(--border-2);margin:7px 0;}
+
+/* ===== 顶栏 ===== */
+.topbar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:10px 12px;
+}
+.logo{display:flex;align-items:center;gap:9px;flex:1;min-width:0;cursor:pointer;}
+.logo-icon{
+  width:34px;height:34px;border-radius:10px;overflow:hidden;flex-shrink:0;
+  border:1px solid var(--border);background:#f6f8fb;
+}
+.logo-icon img{width:100%;height:100%;object-fit:cover;}
+.logo-title{font-size:13.5px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.logo-sub{font-size:10px;color:var(--txt2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.edit-icon{font-size:10px;opacity:.45;margin-left:4px;flex-shrink:0;}
+
+/* ===== 工具栏 ===== */
+.toolbar{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:10px 12px;
+}
+.tb-label{font-size:11px;font-weight:700;color:var(--txt2);white-space:nowrap;}
+.toolbar select{
+  background:#f6f8fb;border:1px solid var(--border);color:var(--txt);
+  font-size:11.5px;font-weight:600;padding:7px 9px;border-radius:9px;
+  outline:none;max-width:122px;min-width:86px;
+  font-family:inherit;
+}
+.toolbar select.on{background:var(--blue-soft);border-color:#cfe0ff;color:var(--blue);}
+.toolbar select:disabled{opacity:.55;}
+.tool-btns{display:flex;gap:6px;margin-left:auto;}
+
+/* ===== 按钮 ===== */
+.btn{
+  padding:8px 13px;border-radius:10px;font-size:11.5px;font-weight:700;
+  cursor:pointer;border:1px solid transparent;transition:.15s;
+  font-family:inherit;white-space:nowrap;
+}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-clear{background:#fff;border-color:var(--border);color:var(--txt2);}
+.btn-ai{background:var(--blue);color:#fff;}
+.btn-toggle{background:#f6f8fb;border-color:var(--border);color:var(--txt2);}
+.btn-toggle.active{background:var(--blue-soft);border-color:#cfe0ff;color:var(--blue);}
+.btn-gold{background:var(--blue);color:#fff;}
+.btn-blue{background:#fff;border-color:var(--border);color:var(--txt);}
+.btn-outline{background:#fff;border-color:var(--border);color:var(--txt2);}
+.btn-lock2{background:#fff;border-color:var(--border);color:var(--txt2);}
+.btn-lock2.locked{background:var(--green-soft);border-color:#c6f0d8;color:var(--green);}
+
+.btn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* ===== AI 提示条 ===== */
+.ai-reason-bar{
+  display:none;font-size:10.5px;color:var(--amber);
+  background:var(--amber-soft);border:1px solid #fde68a;
+  border-radius:10px;padding:8px 12px;text-align:center;
+  font-weight:600;line-height:1.6;
+}
+.ai-reason-bar.show{display:block;}
+.ai-progress{
+  display:inline-block;width:90px;height:5px;background:#fde68a;
+  border-radius:3px;overflow:hidden;vertical-align:middle;margin:0 5px;
+}
+.ai-progress-fill{height:100%;background:#f59e0b;border-radius:3px;transition:width .12s linear;}
+
+/* ===== 主卡片 ===== */
+.main-card{
+  display:flex;flex-direction:row;flex-wrap:nowrap;border-radius:14px;
+  overflow:hidden;border:1px solid var(--border);background:var(--card);
+}
+.draw-panel{
+  flex:0 0 36%;min-width:142px;
+  background:#f8fafc;border-right:1px solid var(--border);
+  padding:14px 12px;display:flex;flex-direction:column;gap:5px;justify-content:center;
+}
+.draw-label{
+  display:flex;align-items:center;gap:5px;font-size:10px;
+  font-weight:700;color:var(--txt2);letter-spacing:.5px;
+}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.balls{display:flex;gap:6px;margin:7px 0 3px;}
+.ball{
+  width:34px;height:34px;border-radius:50%;background:#fff;
+  border:1.5px solid #d4dded;display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:var(--txt);
+}
+.period{font-size:12.5px;font-weight:700;color:var(--txt);}
+.sum{font-size:10px;color:var(--txt2);font-weight:600;}
+.countdown{
+  display:inline-block;font-size:10.5px;font-weight:700;color:var(--blue);
+  background:var(--blue-soft);padding:3px 9px;border-radius:7px;
+  margin-top:5px;width:fit-content;
+}
+.mipai-btn{
+  font-size:10.5px;font-weight:700;color:var(--blue);background:#fff;
+  border:1px solid var(--border);border-radius:8px;padding:6px 10px;
+  text-align:center;cursor:pointer;margin-top:6px;transition:.15s;
+}
+.mipai-btn:active{background:#f6f8fb;}
+
+/* ===== 预测面板 ===== */
+.predict-panel{
+  flex:1 1 auto;min-width:0;
+  padding:12px;display:flex;flex-direction:column;gap:8px;justify-content:center;
+}
+.predict-content{display:flex;flex-direction:column;gap:8px;}
+.predict-panel .ph-empty{color:var(--txt2);font-size:11.5px;text-align:center;line-height:2;padding:14px 0;font-weight:600;}
+.predict-header{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.predict-title{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--txt);flex-wrap:wrap;}
+.star-tag{background:var(--blue-soft);color:var(--blue);padding:2px 7px;border-radius:6px;font-size:9.5px;font-weight:700;}
+.ai-tag{background:#fff4e5;color:var(--amber);padding:2px 7px;border-radius:6px;font-size:9.5px;font-weight:700;}
+.hit-tag{background:var(--green-soft);color:var(--green);padding:2px 7px;border-radius:6px;font-size:9.5px;font-weight:700;}
+.expect-badge{
+  font-size:10px;font-weight:700;color:var(--txt2);
+  background:#f6f8fb;border:1px solid var(--border);
+  padding:2px 8px;border-radius:7px;white-space:nowrap;
+}
+.answer-row{display:flex;gap:8px;}
+.answer-card{flex:1;border-radius:10px;padding:9px 5px;text-align:center;border:1px solid var(--border);background:#fbfcfe;}
+.answer-card .label{font-size:9.5px;margin-bottom:3px;font-weight:600;color:var(--txt2);}
+.answer-card .value{font-size:15px;font-weight:800;color:var(--txt);}
+.answer-card.blue{background:#f2f7ff;border-color:#d8e6ff;}
+.answer-card.blue .value{color:var(--blue);}
+.answer-card.purple{background:#f6f5ff;border-color:#e0dcff;}
+.answer-card.purple .value{color:#5b4bcd;}
+.answer-card.gold{background:#f1fbf5;border-color:#d3f0e0;}
+.answer-card.gold .value{color:var(--green);}
+.answer-card.kill{background:var(--red-soft);border-color:#ffdada;}
+.answer-card.kill .value{color:var(--red);}
+.code-strip{
+  display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+  padding:8px;border-radius:10px;background:#f8fafc;border:1px solid var(--border);
+}
+.code-strip .cs-label{width:100%;text-align:center;font-size:9.5px;font-weight:600;color:var(--txt2);margin-bottom:2px;}
+.code-chip{
+  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;background:#fff;
+  border:1px solid #d8e6ff;color:var(--blue);
+}
+.code-chip.p{border-color:#e0dcff;color:#5b4bcd;}
+.predict-extra{display:flex;align-items:center;gap:6px;font-size:9.5px;flex-wrap:wrap;color:var(--txt2);}
+.predict-extra strong{color:var(--txt);font-weight:700;}
+.trend-mini{
+  display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:600;
+  color:var(--txt2);background:#f6f8fb;padding:3px 8px;border-radius:7px;
+  border:1px solid var(--border);white-space:nowrap;
+}
+
+/* ===== 迷你播放器 ===== */
+.mini-player{
+  display:none;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;
+  background:#f8fafc;border:1px solid var(--border);
+}
+.mini-player.show{display:flex;}
+.mini-player .mp-cover{width:34px;height:34px;border-radius:8px;object-fit:cover;background:#eef2f7;flex-shrink:0;}
+.mini-player .mp-text{flex:1;min-width:0;}
+.mini-player .mp-name{font-size:11.5px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mini-player .mp-artist{font-size:10px;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.mini-player .mp-btn{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--border);
+  background:#fff;color:var(--blue);font-size:12px;cursor:pointer;flex-shrink:0;
+}
+.mini-player .mp-btn:active{transform:scale(.93);}
+
+/* ===== 卡片 ===== */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;}
+.card-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:10px;font-size:12px;font-weight:700;color:var(--txt);
+}
+.card-head .acc{color:var(--txt2);font-size:10.5px;font-weight:600;}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:11px;min-width:400px;}
+th{
+  background:#f8fafc;padding:8px 5px;color:var(--txt2);
+  border-bottom:1px solid var(--border);font-size:10px;
+  white-space:nowrap;font-weight:600;text-align:center;
+}
+td{
+  padding:8px 5px;border-bottom:1px solid var(--border-2);
+  color:var(--txt);text-align:center;font-size:11px;white-space:nowrap;
+}
+tr:last-child td{border-bottom:none;}
+.win{color:var(--green);font-weight:800;}
+.win-big{color:var(--green);font-weight:800;}
+.pending-row{background:#fffdf5;}
+.pending-tag{color:var(--amber);font-weight:700;font-size:10.5px;}
+.hit-badge{display:inline-block;padding:2px 7px;font-size:10px;font-weight:700;border-radius:5px;background:var(--green-soft);color:var(--green);white-space:nowrap;}
+.hit-badge.green,.hit-badge.yellow{background:var(--green-soft);color:var(--green);}
+.miss-badge{display:inline-block;padding:2px 7px;background:#f6f8fb;color:var(--txt2);font-size:10px;font-weight:600;border-radius:5px;white-space:nowrap;}
+.tag-b,.tag-p,.tag-k{display:inline-block;border-radius:5px;padding:2px 6px;margin:0 1px;font-weight:700;font-size:10px;}
+.tag-b{background:var(--blue-soft);color:var(--blue);}
+.tag-p{background:#f6f5ff;color:#5b4bcd;}
+.tag-k{background:var(--red-soft);color:var(--red);}
+.empty-row{color:var(--txt2);font-size:11px;padding:20px 0;text-align:center;font-weight:600;}
+
+/* ===== 底部 ===== */
+.footer{text-align:center;font-size:10px;color:#a3b0be;padding:6px 0 2px;letter-spacing:.3px;}
+
+/* ===== 底部弹层 ===== */
+.sheet-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.35);
+  z-index:10000;display:flex;align-items:flex-end;justify-content:center;
+}
+.sheet{
+  width:100%;max-width:720px;height:72vh;background:#fff;
+  border-radius:18px 18px 0 0;display:flex;flex-direction:column;overflow:hidden;
+}
+.sheet-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:15px 16px;font-size:13.5px;font-weight:700;color:var(--txt);
+  border-bottom:1px solid var(--border);
+}
+.sheet-close{
+  width:28px;height:28px;border-radius:50%;border:none;
+  background:#f6f8fb;color:var(--txt2);font-size:13px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.sheet-close:active{background:#eef2f7;}
+.sheet-sub{padding:9px 16px;font-size:10.5px;color:var(--txt2);border-bottom:1px solid var(--border);font-weight:600;}
+.sheet-body{flex:1;overflow-y:auto;padding:12px 14px 24px;}
+
+/* 扫描头部 */
+.scan-head-bar{display:flex;align-items:center;gap:10px;padding:4px 2px 14px;}
+.scan-avatar-mini{position:relative;width:38px;height:38px;flex-shrink:0;}
+.scan-avatar-mini img{width:38px;height:38px;border-radius:50%;border:1.5px solid #d8e6ff;object-fit:cover;position:relative;z-index:2;}
+.scan-avatar-ring-mini{position:absolute;inset:-4px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--blue);animation:scanRingSpin 1s linear infinite;}
+.scan-avatar-ring-mini2{position:absolute;inset:-8px;border-radius:50%;border:1px dashed transparent;border-bottom-color:#cfe0ff;animation:scanRingSpin 2.6s linear infinite reverse;opacity:.7;}
+@keyframes scanRingSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.scan-head-text{flex:1;min-width:0;}
+.scan-head-title{font-size:12.5px;font-weight:700;color:var(--txt);}
+.scan-head-sub{font-size:10px;color:var(--txt2);margin-top:2px;}
+.scan-progress-wrap{padding:4px 2px 16px;}
+.scan-progress{height:8px;background:#eef2f7;border-radius:6px;overflow:hidden;}
+.scan-progress-bar{height:100%;width:0%;background:var(--blue);border-radius:6px;transition:width .2s linear;}
+.scan-progress-text{text-align:center;font-size:11px;color:var(--txt2);font-weight:600;margin-top:9px;}
+
+/* 组合条目 */
+.combo-item{
+  display:flex;align-items:center;gap:10px;padding:11px 12px;margin-bottom:8px;
+  background:#fff;border:1px solid var(--border);border-radius:12px;
+}
+.combo-item.best{background:#f8fbff;border-color:#d8e6ff;}
+.combo-rank{
+  width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;background:#b9c6d6;flex-shrink:0;
+}
+.combo-item.best .combo-rank{background:var(--blue);}
+.combo-main{flex:1;min-width:0;}
+.combo-title{font-size:11.5px;font-weight:700;color:var(--txt);margin-bottom:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.chip{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:7px;border:1px solid var(--border);color:var(--txt2);background:#f8fafc;}
+.chip-seed{background:var(--blue-soft);border-color:#d8e6ff;color:var(--blue);}
+.chip-range{background:#f6f5ff;border-color:#e0dcff;color:#5b4bcd;}
+.combo-sub{font-size:10px;color:var(--txt2);}
+.combo-sub b{color:var(--txt);font-weight:700;}
+.combo-apply{
+  padding:7px 13px;border-radius:9px;border:none;font-size:11px;font-weight:700;
+  cursor:pointer;background:var(--blue);color:#fff;white-space:nowrap;
+  flex-shrink:0;font-family:inherit;
+}
+.combo-apply:active{transform:scale(.95);}
+
+/* 居中弹窗 */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.35);
+  z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;
+}
+.modal-box{
+  background:#fff;border:1px solid var(--border);border-radius:18px;
+  width:100%;max-width:400px;max-height:80vh;overflow-y:auto;
+  padding:20px 18px;position:relative;
+}
+.modal-box .m-close{
+  position:absolute;top:12px;right:12px;width:28px;height:28px;
+  border-radius:50%;border:none;background:#f6f8fb;color:var(--txt2);
+  font-size:13px;cursor:pointer;
+}
+.modal-box .m-title{font-size:15px;font-weight:700;text-align:center;margin-bottom:16px;color:var(--txt);}
+
+/* 刮刮卡 */
+.scratch-container{position:relative;width:100%;max-width:320px;margin:0 auto;min-height:130px;border-radius:14px;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;}
+.scratch-result{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:#f8fafc;border-radius:14px;border:1px solid var(--border);
+  font-size:26px;font-weight:800;color:var(--txt);letter-spacing:2px;z-index:1;
+}
+.scratch-sum{font-size:13px;color:var(--txt2);margin-top:6px;font-weight:600;letter-spacing:0;}
+.scratch-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;border-radius:14px;cursor:pointer;}
+.scratch-time{text-align:center;font-size:11px;color:var(--txt2);margin-top:12px;font-weight:600;}
+
+/* 音乐 */
+.music-search{display:flex;gap:8px;padding:0 2px 12px;}
+.music-search input{
+  flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);
+  font-size:13px;outline:none;background:#f8fafc;color:var(--txt);
+  font-weight:600;font-family:inherit;
+}
+.music-search input:focus{border-color:#cfe0ff;background:#fff;}
+.music-search input::placeholder{color:#a3b0be;font-weight:500;}
+.music-search button{
+  padding:10px 18px;border-radius:10px;border:none;font-size:12.5px;font-weight:700;
+  cursor:pointer;background:var(--blue);color:#fff;font-family:inherit;
+}
+.music-search button:active{transform:scale(.96);}
+.song-item{
+  display:flex;align-items:center;gap:10px;padding:9px 10px;margin-bottom:7px;
+  background:#fff;border:1px solid var(--border-2);border-radius:11px;cursor:pointer;
+}
+.song-item:active{background:#f8fafc;}
+.song-item.playing{background:#f2f7ff;border-color:#d8e6ff;}
+.song-cover{width:42px;height:42px;border-radius:9px;object-fit:cover;background:#eef2f7;flex-shrink:0;}
+.song-cover-ph{
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:#b9c6d6;background:#f8fafc;
+}
+.song-info{flex:1;min-width:0;}
+.song-name{font-size:12px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.song-artist{font-size:10px;color:var(--txt2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.song-play{font-size:15px;color:var(--blue);flex-shrink:0;}
+.music-empty{text-align:center;color:var(--txt2);font-size:12px;padding:32px 10px;line-height:2;font-weight:600;}
+</style>
+</head>
+<body>
+<div id="customBg"></div>
+
+<!-- ============ 主界面 ============ -->
+<div class="main-container" id="mainContainer">
+
+  <!-- 公告 -->
+  <div class="announce-bar">
+    <div class="announce-header" id="announceHeader">
+      <span>📢 系统公告 · 使用必看</span>
+      <span class="toggle-icon">▼</span>
+    </div>
+    <div class="announce-body collapsed" id="announceBody">
+      <div>✅ 每一期扫描一遍，应用<b>排名第一</b>的组合，可保持最佳命中率</div>
+      <div>📊 缓冲记录会逐期验证，切换种子不会丢失</div>
+      <div class="divider"></div>
+      <div>🧠 三组 / 双组模式可随时切换，双组模式自带智能杀组与动态特码</div>
+      <div>🔒 「记忆锁定」可保存当前配置，下次打开自动恢复</div>
+    </div>
+  </div>
+
+  <!-- 顶栏 -->
+  <div class="topbar">
+    <div class="logo" id="logoArea" title="点击修改算法名字">
+      <div class="logo-icon"><img id="avatarImg" src="https://img14.360buyimg.com/ddimg/jfs/t1/505733/21/6450/10911/6a86e947F2fa3cbaa/00154a243842b606.jpg" alt="头像"></div>
+      <div style="min-width:0;">
+        <div class="logo-title" id="algoName">算法</div>
+        <div class="logo-sub">独家算法 · 精准预测</div>
+      </div>
+      <span class="edit-icon">✏️</span>
+    </div>
+  </div>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <span class="tb-label">种子</span>
+    <select id="seedSelector"><option value="1894282">种子 1.894282</option><option value="63195">种子 0.063195</option><option value="500821">种子 0.500821</option><option value="1201624">种子 1.201624</option><option value="1431937">种子 1.431937</option><option value="1805195">种子 1.805195</option><option value="200009">种子 0.200009</option><option value="262933">种子 0.262933</option><option value="338920">种子 0.338920</option><option value="469832">种子 0.469832</option><option value="755424">种子 0.755424</option><option value="772449">种子 0.772449</option><option value="835777">种子 0.835777</option><option value="852401">种子 0.852401</option><option value="958116">种子 0.958116</option><option value="1001345">种子 1.001345</option><option value="1003574">种子 1.003574</option><option value="1068242">种子 1.068242</option><option value="1075725">种子 1.075725</option><option value="1119056">种子 1.119056</option><option value="1123032">种子 1.123032</option><option value="1191441">种子 1.191441</option><option value="1344834">种子 1.344834</option><option value="1549675">种子 1.549675</option><option value="1609109">种子 1.609109</option><option value="1671564">种子 1.671564</option><option value="1731333">种子 1.731333</option><option value="1733316">种子 1.733316</option><option value="1057286">种子 1.057286</option><option value="1396270">种子 1.396270</option><option value="1494763">种子 1.494763</option><option value="1510773">种子 1.510773</option><option value="1672230">种子 1.672230</option><option value="1797190">种子 1.797190</option><option value="1934392">种子 1.934392</option><option value="1958146">种子 1.958146</option><option value="919967">种子 0.919967</option><option value="1993846">种子 1.993846</option><option value="458896">种子 0.458896</option><option value="625445">种子 0.625445</option><option value="682592">种子 0.682592</option><option value="984669">种子 0.984669</option><option value="1179866">种子 1.179866</option><option value="1378260">种子 1.378260</option><option value="1473000">种子 1.473000</option><option value="716">种子 0.000716</option><option value="79927">种子 0.079927</option><option value="180542">种子 0.180542</option><option value="240154">种子 0.240154</option><option value="253900">种子 0.253900</option><option value="279509">种子 0.279509</option><option value="305022">种子 0.305022</option><option value="375085">种子 0.375085</option><option value="377816">种子 0.377816</option><option value="379659">种子 0.379659</option><option value="410259">种子 0.410259</option></select>
+    <span class="tb-label">区间</span>
+    <select id="rangeSelector"><option value="1">001</option><option value="2">002</option><option value="3">003</option><option value="4">004</option><option value="5">005</option></select>
+    <button class="btn btn-clear" id="clearCacheBtn">清理缓存</button>
+    <button class="btn btn-ai" id="aiSelectBtn">AI 融合</button>
+    <button class="btn btn-toggle" id="toggleModeBtn">双组模式</button>
+    <div class="tool-btns">
+      <button class="btn btn-outline" id="musicBtn">🎵 音乐</button>
+      <button class="btn btn-outline" id="avatarBtn">🖼️ 头像</button>
+    </div>
+  </div>
+
+  <div class="ai-reason-bar" id="aiReasonBar"></div>
+
+  <!-- 主卡片 -->
+  <div class="main-card">
+    <div class="draw-panel">
+      <div class="draw-label"><span class="live-dot"></span>最新开奖</div>
+      <div class="balls">
+        <div class="ball" id="ball1">-</div>
+        <div class="ball" id="ball2">-</div>
+        <div class="ball" id="ball3">-</div>
+      </div>
+      <div class="period" id="latestPeriod">--期</div>
+      <div class="sum" id="latestSum">和值：--</div>
+      <div class="countdown" id="countdown">加载中</div>
+      <div class="mipai-btn" id="mipaiBtn">🎴 眯牌刮卡</div>
+    </div>
+    <div class="predict-panel">
+      <div class="predict-content" id="predictPanel">
+        <div class="ph-empty">数据加载中…</div>
+      </div>
+      <div class="mini-player" id="miniPlayer">
+        <img class="mp-cover" id="mpCover" alt="">
+        <div class="mp-text">
+          <div class="mp-name" id="mpName">正在播放…</div>
+          <div class="mp-artist" id="mpArtist">--</div>
+        </div>
+        <button class="mp-btn" id="mpToggle">⏸</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作按钮 -->
+  <div class="btn-row">
+    <button class="btn btn-gold" id="scanBtn">🔍 重新扫描</button>
+    <button class="btn btn-blue" id="predictBtn">✨ 立即预测</button>
+    <button class="btn btn-outline" id="bgBtn">🖼️ 切换背景</button>
+    <input type="file" id="bgInput" accept="image/*" style="display:none">
+    <button class="btn btn-lock2" id="lockSeedBtn">🔒 记忆锁定</button>
+  </div>
+
+  <!-- 缓冲记录 -->
+  <div class="card" id="bufferCard">
+    <div class="card-head">
+      <span>🧊 缓冲记录 · 切换种子不丢失</span>
+      <span class="acc" id="bufferAcc">未启用</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>期号</th><th>上期开奖</th><th>预测三组</th><th>实际开奖</th><th>结果</th></tr></thead>
+        <tbody id="bufferBody"><tr><td colspan="5" class="empty-row">应用组合后开始记录（切换种子不会丢失）</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 回测 -->
+  <div class="card">
+    <div class="card-head">
+      <span>📜 最近 30 期回测</span>
+      <span class="acc" id="historyAcc">--</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>期号</th><th>上期开奖</th><th>预测三组</th><th>实际开奖</th><th>结果</th></tr></thead>
+        <tbody id="historyBody"><tr><td colspan="5" class="empty-row">请先扫描并应用组合</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">算法预测 · 种子 × 区间融合 · 仅供娱乐参考</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= 常量 ================= */
+const API_1 = 'https://super.pc28998.com/history/JND28';
+const API_2 = 'https://pc28.help/api/kj.json?nbr=120';
+const API_3 = 'https://yu28.top/api/kj.json';
+const API_4 = 'https://pc28.help/api/kj.json?nbr=60';
+const STORE_KEY = 'panda_state_v9';
+
+let currentScanWin = 27;
+
+const RULES = {
+  same:{'小双':['小双','大双','大单'],'小单':['小单','大单','大双'],'大双':['大双','小双','小单'],'大单':['大单','小单','小双']},
+  diff:{'小双':['小双','小单','大单'],'小单':['小单','小双','大双'],'大双':['大双','大单','小单'],'大单':['大单','大双','小双']}
+};
+
+const RANGES = [
+  {key:1, name:'001', min:0,  max:9},
+  {key:2, name:'002', min:10, max:13},
+  {key:3, name:'003', min:14, max:17},
+  {key:4, name:'004', min:18, max:22},
+  {key:5, name:'005', min:23, max:27}
+];
+const RANGE_MAP = {};
+RANGES.forEach(r => RANGE_MAP[r.key] = r);
+
+const SEED_TRANSFORMS = [
+  {key:0, name:'直取',  fn: s => (s >>> 0)},
+  {key:1, name:'异或A', fn: s => (s ^ 0xAAAAAAAA) >>> 0}
+];
+const TF_MAP = {};
+SEED_TRANSFORMS.forEach(t => TF_MAP[t.key] = t);
+
+const RANGE_STRATEGIES = [
+  {key:0, name:'固定', fn: (rk, prev) => rk},
+  {key:1, name:'和值', fn: (rk, prev) => 1 + Math.min(4, Math.floor(prev.sum / 6))}
+];
+const ST_MAP = {};
+RANGE_STRATEGIES.forEach(s => ST_MAP[s.key] = s);
+
+const TYPE_PICKS = {
+  '小双':[4,10],'小单':[7,13],'大双':[18,24],'大单':[19,27]
+};
+
+const $ = id => document.getElementById(id);
+const getType = s => (s < 14 ? '小' : '大') + (s % 2 === 0 ? '双' : '单');
+
+/* 三通道哈希 */
+function hash32(a, b, c){
+  let h = Math.imul((a >>> 0) ^ 0x9E3779B9, 0x85EBCA6B) >>> 0;
+  h = (h ^ Math.imul(((b >>> 0) + 0x165667B1) | 0, 0xC2B2AE35)) >>> 0;
+  h = (h ^ Math.imul(((c >>> 0) + 0x27D4EB2F) | 0, 0x9E3779B1)) >>> 0;
+  return h >>> 0;
+}
+
+/* ===== 核心预测：四通道哈希 ===== */
+function comboPredict(seed, rangeKey, prevItem){
+  const rg = RANGE_MAP[rangeKey] || RANGES[0];
+  const expect = parseInt(prevItem.expect, 10) || 0;
+  const span = rg.max - rg.min + 1;
+  const rgBase = rangeKey * 7919 + rg.min * 131 + rg.max * 17;
+
+  const h1 = hash32(seed, rgBase, expect);
+  const h2 = hash32(seed ^ 0x9E3779B9, rgBase + 1, expect * 3 + 7);
+  const h3 = hash32(seed ^ 0x85EBCA6B, rgBase + 2, expect * 5 + prevItem.sum);
+  const h4 = hash32(seed ^ 0xC2B2AE35, rgBase + 3, expect * 11 + prevItem.nums[0] * 101 + prevItem.nums[1] * 13 + prevItem.nums[2]);
+
+  const r1 = (h1 >>> 0) / 4294967296;
+  const r2 = (h2 >>> 0) / 4294967296;
+  const r3 = (h3 >>> 0) / 4294967296;
+  const r4 = (h4 >>> 0) / 4294967296;
+
+  const base = rg.min + Math.floor(r1 * span);
+  const shift = ((seed % 29) + (prevItem.sum % 11) + rangeKey + Math.floor(r4 * 7)) % 28;
+  const v = (base + shift) % 28;
+  const t = getType(v);
+
+  const useSame = r2 > 0.5;
+  const pool = useSame ? RULES.same[t] : RULES.diff[t];
+  const rot = Math.floor(r3 * 3) % 3;
+  return [pool[rot], pool[(rot + 1) % 3], pool[(rot + 2) % 3]];
+}
+
+/* 增强预测包装 */
+function effectivePredict(seed, rangeKey, prevItem, tfKey, stKey){
+  const tf = TF_MAP[tfKey] || SEED_TRANSFORMS[0];
+  const st = ST_MAP[stKey] || RANGE_STRATEGIES[0];
+  const effSeed = tf.fn(seed) >>> 0;
+  const effRange = st.fn(rangeKey, prevItem);
+  return comboPredict(effSeed, effRange, prevItem);
+}
+
+/* 种子格式化 */
+function fmtSeed(s){ return (s / 1000000).toFixed(6); }
+
+function effectiveAccuracy(seed, rangeKey, hist, len, tfKey, stKey){
+  const n = Math.min(len, hist.length - 1);
+  if(n <= 0) return {acc:0, hit:0, total:n, acc20:0, hit20:0, total20:0, streak:0};
+  let hit = 0, hit20 = 0, streak = 0;
+  const n20 = Math.min(20, n);
+  for(let i = 0; i < n; i++){
+    const real = hist[i], prev = hist[i + 1];
+    const ok = isHit(real, effectivePredict(seed, rangeKey, prev, tfKey, stKey));
+    if(ok){ hit++; if(i < n20) hit20++; }
+    if(i === 0 && ok) streak = 1;
+    else if(i > 0 && ok && streak === i) streak = i + 1;
+  }
+  const dKill = ultraKillIdx(seed, rangeKey, hist, n, tfKey, stKey);
+  let dHit = 0;
+  for(let i = 0; i < n; i++){
+    const real = hist[i], prev = hist[i + 1];
+    const g = effectivePredict(seed, rangeKey, prev, tfKey, stKey);
+    const doubles = g.filter((_, idx) => idx !== dKill);
+    if(doubles.indexOf(real.type) !== -1) dHit++;
+  }
+  return {acc: hit/n*100, hit, total:n, acc20: n20?hit20/n20*100:0, hit20, total20:n20, streak, doubleHit: dHit, doubleAcc: dHit/n*100};
+}
+
+function effectiveKillIdx(seed, rangeKey, hist, len, tfKey, stKey){
+  const n = Math.min(len, hist.length - 1);
+  if(n < 3) return 0;
+
+  const curPeriod = parseInt(hist[0].expect, 10) || 0;
+  const tailNum = curPeriod % 9;
+
+  const KILL_BIND = [
+    {seed: 111111, range: 1, tf: 0, st: 0},
+    {seed: 222222, range: 2, tf: 1, st: 0},
+    {seed: 333333, range: 3, tf: 0, st: 1},
+    {seed: 444444, range: 4, tf: 1, st: 1},
+    {seed: 555555, range: 5, tf: 0, st: 0},
+    {seed: 666666, range: 1, tf: 1, st: 1},
+    {seed: 777777, range: 2, tf: 0, st: 1},
+    {seed: 888888, range: 3, tf: 1, st: 0},
+    {seed: 999999, range: 4, tf: 0, st: 0}
+  ];
+  const bind = KILL_BIND[tailNum];
+
+  let bestScore = -999, bestIdx = 0;
+  for(let k = 0; k < 3; k++){
+    let hit = 0, recentHit = 0, killedOpen = 0, recentKilledOpen = 0;
+    const recentN = Math.min(10, n);
+    for(let i = 0; i < n; i++){
+      const real = hist[i], prev = hist[i + 1];
+      const g = effectivePredict(bind.seed, bind.range, prev, bind.tf, bind.st);
+      const killedType = g[k];
+      const doubles = g.filter((_, idx) => idx !== k);
+      const inDouble = doubles.indexOf(real.type) !== -1;
+      if(inDouble) hit++;
+      if(i < recentN && inDouble) recentHit++;
+      if(real.type === killedType) killedOpen++;
+      if(i < recentN && real.type === killedType) recentKilledOpen++;
+    }
+    const score = (hit/n*100)*0.4 + (recentHit/recentN*100)*0.3 - (killedOpen/n*100)*0.2 - (recentKilledOpen/recentN*100)*0.1;
+    if(score > bestScore){ bestScore = score; bestIdx = k; }
+  }
+
+  if(bestScore >= 80) return bestIdx;
+
+  let fbBest = -1, fbBestIdx = 0;
+  for(let k = 0; k < 3; k++){
+    let hit = 0;
+    for(let i = 0; i < n; i++){
+      const real = hist[i], prev = hist[i + 1];
+      const g = effectivePredict(seed, rangeKey, prev, tfKey, stKey);
+      const doubles = g.filter((_, idx) => idx !== k);
+      if(doubles.indexOf(real.type) !== -1) hit++;
+    }
+    if(hit > fbBest){ fbBest = hit; fbBestIdx = k; }
+  }
+  return fbBestIdx;
+}
+
+function analyzeTrend(hist){
+  const recent = hist.slice(0, Math.min(15, hist.length));
+  const typeCounts = {'小双':0,'小单':0,'大双':0,'大单':0};
+  recent.forEach(h => typeCounts[h.type]++);
+  let hot='', cold='', maxC=-1, minC=999;
+  for(const t in typeCounts){
+    if(typeCounts[t] > maxC){ maxC = typeCounts[t]; hot = t; }
+    if(typeCounts[t] < minC){ minC = typeCounts[t]; cold = t; }
+  }
+  const sums = recent.map(h => h.sum);
+  const avg5 = sums.slice(0,5).reduce((a,b)=>a+b,0)/Math.min(5,sums.length);
+  const avg10 = sums.slice(0,10).reduce((a,b)=>a+b,0)/Math.min(10,sums.length);
+  const trend = avg5 > avg10 + 0.8 ? 'up' : (avg5 < avg10 - 0.8 ? 'down' : 'flat');
+  let odd=0, big=0;
+  recent.forEach(h => { if(h.sum%2) odd++; if(h.sum>=14) big++; });
+  return {typeCounts, hot, cold, trend, oddRate: odd/recent.length, bigRate: big/recent.length, avg5};
+}
+
+function trendMatchScore(groups, trend){
+  let score = 0;
+  if(groups.indexOf(trend.hot) !== -1) score += 35;
+  if(groups.indexOf(trend.cold) === -1) score += 25;
+  if(trend.trend === 'up' && (groups.indexOf('大双')!==-1 || groups.indexOf('大单')!==-1)) score += 20;
+  if(trend.trend === 'down' && (groups.indexOf('小双')!==-1 || groups.indexOf('小单')!==-1)) score += 20;
+  if(trend.bigRate > 0.6 && (groups.indexOf('大双')!==-1 || groups.indexOf('大单')!==-1)) score += 10;
+  if(trend.bigRate < 0.4 && (groups.indexOf('小双')!==-1 || groups.indexOf('小单')!==-1)) score += 10;
+  return score;
+}
+
+function smartKillIdx(seed, rangeKey, hist, tfKey, stKey){
+  const n = Math.min(20, hist.length - 1);
+  if(n < 3) return 0;
+  const trend = analyzeTrend(hist);
+  let bestScore = -999, bestIdx = 0;
+  for(let k = 0; k < 3; k++){
+    let hit = 0;
+    for(let i = 0; i < n; i++){
+      const real = hist[i], prev = hist[i + 1];
+      const g = effectivePredict(seed, rangeKey, prev, tfKey, stKey);
+      const doubles = g.filter((_, idx) => idx !== k);
+      if(doubles.indexOf(real.type) !== -1) hit++;
+    }
+    const g0 = effectivePredict(seed, rangeKey, hist[0], tfKey, stKey);
+    const killedType = g0[k];
+    let score = hit * 2;
+    if(killedType === trend.cold) score += 15;
+    if(killedType !== trend.hot) score += 8;
+    if(score > bestScore){ bestScore = score; bestIdx = k; }
+  }
+  return bestIdx;
+}
+
+function ultraKillIdx(seed, rangeKey, hist, tfKey, stKey){
+  const n = Math.min(27, hist.length - 1);
+  if(n < 5) return 0;
+
+  const pred = effectivePredict(seed, rangeKey, hist[0], tfKey, stKey);
+  const trend = analyzeTrend(hist);
+
+  function analyzeKillPos(k){
+    let doubleHit = 0, total = 0;
+    let killedOpen = 0;
+    let recentDoubleHit = 0, recentTotal = 0;
+    let recentKilledOpen = 0;
+
+    for(let i = 0; i < n; i++){
+      const real = hist[i], prev = hist[i+1];
+      const g = effectivePredict(seed, rangeKey, prev, tfKey, stKey);
+      if(g.length < 3) continue;
+      const killedType = g[k];
+      const doubles = g.filter((_, idx) => idx !== k);
+      const isDoubleHit = doubles.indexOf(real.type) !== -1;
+      const isKilledOpen = real.type === killedType;
+
+      if(isDoubleHit) doubleHit++;
+      if(isKilledOpen) killedOpen++;
+      total++;
+
+      if(i < 10){
+        if(isDoubleHit) recentDoubleHit++;
+        if(isKilledOpen) recentKilledOpen++;
+        recentTotal++;
+      }
+    }
+
+    const doubleRate = total > 0 ? doubleHit / total : 0;
+    const killedRate = total > 0 ? killedOpen / total : 0;
+    const recentDoubleRate = recentTotal > 0 ? recentDoubleHit / recentTotal : 0;
+    const recentKilledRate = recentTotal > 0 ? recentKilledOpen / recentTotal : 0;
+
+    let score = 0;
+    score += (1 - killedRate) * 50;
+    score += (1 - recentKilledRate) * 30;
+    score += doubleRate * 15;
+    score += recentDoubleRate * 10;
+
+    if(pred[k] === trend.cold) score += 8;
+    if(pred[k] !== trend.hot) score += 4;
+
+    if(pred[0] === pred[1] && pred[0] !== pred[2] && k === 0) score += 12;
+    if(pred[1] === pred[2] && pred[1] !== pred[0] && k === 2) score += 12;
+    if(pred[0] === pred[2] && pred[0] !== pred[1] && k === 1) score += 12;
+    if(pred[0] === pred[1] && pred[1] === pred[2]){
+      if(k === 1) score += 20;
+    }
+
+    return {score, killedRate, recentKilledRate, doubleRate};
+  }
+
+  const scores = [0,1,2].map(k => ({k, ...analyzeKillPos(k)}));
+  scores.sort((a,b) => b.score - a.score);
+
+  return scores[0].k;
+}
+
+function dynamicPicks(type, hist, seed, rangeKey, doubles){
+  if(!hist || hist.length < 10) return TYPE_PICKS[type] || [4,10];
+
+  const typeRange = {
+    '大单': {min:14, max:27, odd:true},
+    '大双': {min:14, max:26, odd:false},
+    '小单': {min:3, max:13, odd:true},
+    '小双': {min:0, max:12, odd:false},
+  };
+  const tr = typeRange[type];
+  if(!tr) return TYPE_PICKS[type] || [4,10];
+
+  const candidates = new Set();
+  if(doubles && doubles.length){
+    doubles.forEach(dt => {
+      const dtr = typeRange[dt];
+      if(dtr){
+        const mid = Math.floor((dtr.min + dtr.max) / 2);
+        candidates.add(mid);
+        candidates.add(mid - 1);
+        candidates.add(mid + 1);
+        candidates.add(mid - 2);
+        candidates.add(mid + 2);
+      }
+    });
+  }
+  const typeMid = Math.floor((tr.min + tr.max) / 2);
+  for(let offset = -3; offset <= 3; offset++){
+    candidates.add(typeMid + offset);
+  }
+  const recentSums = hist.slice(0, 10).map(h => h.sum);
+  const avgSum = recentSums.reduce((a,b) => a+b, 0) / recentSums.length;
+  candidates.add(Math.round(avgSum));
+  candidates.add(Math.round(avgSum) - 1);
+  candidates.add(Math.round(avgSum) + 1);
+
+  const validCandidates = [...candidates].filter(s => {
+    if(s < tr.min || s > tr.max) return false;
+    if(tr.odd && s % 2 === 0) return false;
+    if(!tr.odd && s % 2 === 1) return false;
+    return s >= 0 && s <= 27;
+  });
+
+  if(validCandidates.length === 0) return TYPE_PICKS[type] || [4,10];
+
+  const n = Math.min(25, hist.length - 1);
+  const scored = validCandidates.map(s => {
+    let hit = 0, total = 0, recentHit = 0, recentTotal = 0;
+    const recentN = Math.min(10, n);
+    for(let i = 0; i < n; i++){
+      const real = hist[i];
+      if(real.type === type){
+        total++;
+        if(Math.abs(real.sum - s) <= 2) hit++;
+        if(i < recentN){
+          recentTotal++;
+          if(Math.abs(real.sum - s) <= 2) recentHit++;
+        }
+      }
+    }
+    const overallRate = total > 0 ? hit / total : 0;
+    const recentRate = recentTotal > 0 ? recentHit / recentTotal : 0;
+    const score = total >= 2 ? overallRate * 0.4 + recentRate * 0.6 : 0;
+    return {s, rate: score, total, recentTotal};
+  });
+
+  scored.sort((a,b) => b.rate - a.rate || b.total - a.total);
+
+  const highConf = scored.filter(x => x.rate >= 0.10 && x.total >= 2);
+
+  let picks;
+  if(highConf.length >= 2){
+    picks = highConf.slice(0, 2).map(x => x.s);
+  }else if(highConf.length === 1){
+    const second = scored.find(x => x.s !== highConf[0].s);
+    picks = [highConf[0].s, second ? second.s : TYPE_PICKS[type][1]];
+  }else if(scored.length >= 2){
+    picks = scored.slice(0, 2).map(x => x.s);
+  }else{
+    picks = TYPE_PICKS[type] || [4,10];
+  }
+
+  return picks;
+}
+
+function isHit(realItem, groups){
+  return groups.indexOf(realItem.type) !== -1;
+}
+
+function comboAccuracy(seed, rangeKey, hist, len){
+  const n = Math.min(len, hist.length - 1);
+  if(n <= 0) return {acc:0, hit:0, total:0};
+  let hit = 0;
+  for(let i = 0; i < n; i++){
+    const real = hist[i], prev = hist[i + 1];
+    if(isHit(real, comboPredict(seed, rangeKey, prev))) hit++;
+  }
+  return {acc: hit / n * 100, hit, total: n};
+}
+
+function getBestKillIdx(seed, rangeKey, hist, len){
+  const n = Math.min(len, hist.length - 1);
+  if(n < 3) return 0;
+  let best = -1, bestIdx = 0;
+  for(let k = 0; k < 3; k++){
+    let hit = 0;
+    for(let i = 0; i < n; i++){
+      const real = hist[i], prev = hist[i + 1];
+      const g = comboPredict(seed, rangeKey, prev);
+      const doubles = g.filter((_, idx) => idx !== k);
+      if(doubles.indexOf(real.type) !== -1) hit++;
+    }
+    if(hit > best){ best = hit; bestIdx = k; }
+  }
+  return bestIdx;
+}
+
+/* ================= 状态 ================= */
+let history = [];
+let currentSeed = null;
+let currentRange = null;
+let currentTransform = 0;
+let currentStrategy = 0;
+let scannedCombos = [];
+let viewMode = 'three';
+let aiActive = null;
+let countdownTimer = null;
+let rapidPollTimer = null;
+let rapidPollActive = false;
+let lastExpect = null;
+let announceCollapsed = true;
+let scanning = false;
+let memoryLocked = false;
+let buffer = { active:false, rows:[] };
+
+/* ================= 数据解析 ================= */
+function parseApi1(json){
+  if(json && json.code === 1 && Array.isArray(json.data)){
+    return json.data.map(item => {
+      const nums = String(item.opencode).split(',').map(Number);
+      const sum = nums.reduce((a, b) => a + b, 0);
+      let opentime = item.opentime;
+      if(typeof opentime === 'number') opentime = opentime < 1e10 ? opentime : Math.floor(opentime / 1000);
+      else opentime = Math.floor(Date.now() / 1000);
+      return { expect:String(item.expect || item.period || ''), nums, sum, type:getType(sum), opentime };
+    }).filter(x => x.expect && x.nums.length === 3);
+  }
+  return null;
+}
+function parseApi2(json){
+  if(json && Array.isArray(json.data)){
+    return json.data.map(item => {
+      const nums = String(item.number).split('+').map(Number);
+      const sum = nums.reduce((a, b) => a + b, 0);
+      let opentime = new Date(item.date + ' ' + item.time).getTime() / 1000;
+      if(isNaN(opentime)) opentime = Math.floor(Date.now() / 1000);
+      return { expect:String(item.nbr), nums, sum, type:item.combination || getType(sum), opentime };
+    }).filter(x => x.nums.length === 3);
+  }
+  return null;
+}
+function parseApi3(json){
+  if(json && json.nbr && json.number){
+    const nums = String(json.number).split('+').map(Number);
+    const sum = nums.reduce((a, b) => a + b, 0);
+    let opentime = json.opentime || json.time || json.date;
+    if(opentime){
+      if(typeof opentime === 'string'){
+        const t = new Date(opentime).getTime();
+        if(!isNaN(t)) opentime = Math.floor(t / 1000);
+        else opentime = null;
+      } else if(typeof opentime === 'number'){
+        opentime = opentime > 1e10 ? Math.floor(opentime / 1000) : opentime;
+      }
+    }
+    if(!opentime){
+      opentime = Math.floor(Date.now() / 1000) - 210;
+    }
+    return [{
+      expect: String(json.nbr),
+      nums, sum,
+      type: getType(sum),
+      opentime: opentime
+    }];
+  }
+  return null;
+}
+
+/* ================= 数据获取 ================= */
+function fetchJson(url, timeout){
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = (data) => {
+      if(!done && data != null){ done = true; resolve(data); }
+    };
+    fetch(url, {signal: AbortSignal.timeout(timeout), cache: 'no-store', pragma: 'no-cache', mode: 'cors'})
+      .then(r => r.ok ? r.json() : null)
+      .then(finish)
+      .catch(() => {
+        const proxies = [
+          'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+          'https://corsproxy.io/?url=' + encodeURIComponent(url)
+        ];
+        proxies.forEach(p => {
+          fetch(p, {signal: AbortSignal.timeout(6000), cache: 'no-store'})
+            .then(r => r.ok ? r.json() : null)
+            .then(finish)
+            .catch(() => {});
+        });
+      });
+    setTimeout(() => { if(!done){ done = true; resolve(null); } }, timeout + 2000);
+  });
+}
+
+async function fetchData(){
+  try{
+    const data = await new Promise((resolve) => {
+      const currentExpect = history.length ? Number(history[0].expect) : 0;
+      let resolved = false;
+      let bestResult = null;
+      let bestExpect = 0;
+
+      const tryResolve = (res) => {
+        if(resolved) return;
+        if(res && res.length){
+          const resExpect = Number(res[0].expect);
+          if(currentExpect === 0 || resExpect >= currentExpect){
+            if(resExpect > bestExpect){
+              bestExpect = resExpect;
+              bestResult = res;
+            }
+            if(resExpect >= currentExpect){
+              resolved = true;
+              resolve(res);
+              return;
+            }
+          }
+        }
+      };
+
+      const p1 = fetchJson(API_3, 3000).then(parseApi3).catch(() => null);
+      const p2 = fetchJson(API_1, 4000).then(parseApi1).catch(() => null);
+      const p3 = fetchJson(API_2, 4000).then(parseApi2).catch(() => null);
+      const p4 = fetchJson(API_4, 4000).then(parseApi2).catch(() => null);
+      p1.then(tryResolve);
+      p2.then(tryResolve);
+      p3.then(tryResolve);
+      p4.then(tryResolve);
+
+      setTimeout(() => {
+        if(!resolved){
+          resolved = true;
+          resolve(bestResult);
+        }
+      }, 5000);
+    });
+
+    if(!data || !data.length){
+      try{
+        const cache = JSON.parse(localStorage.getItem('panda_draw_cache') || 'null');
+        if(cache && Array.isArray(cache) && cache.length){
+          history = cache;
+          updateDisplay();
+          startCountdown();
+          if(currentSeed != null && currentRange != null){
+            renderPredict();
+            renderBacktest();
+          }
+          refreshBuffer();
+        }else{
+          $('countdown').textContent = '⚠️ 数据获取失败，请刷新';
+        }
+      }catch(e){
+        $('countdown').textContent = '⚠️ 数据获取失败，请刷新';
+      }
+      return;
+    }
+
+    if(data.length === 1 && history.length){
+      if(Number(data[0].expect) === Number(history[0].expect)){
+        data = history;
+      }else if(Number(data[0].expect) < Number(history[0].expect)){
+        return;
+      }else{
+        data = [data[0]].concat(history.slice(0, 119));
+      }
+    }
+    const newExpect = Number(data[0].expect);
+    if(history.length && newExpect < Number(history[0].expect)){
+      return;
+    }
+    const isNew = String(newExpect) !== String(lastExpect);
+    history = data.slice(0, 120);
+    try{ localStorage.setItem('panda_draw_cache', JSON.stringify(history.slice(0, 30))); }catch(e){}
+    updateDisplay();
+    if(isNew){
+      lastExpect = newExpect;
+      stopRapidPoll();
+      stopChaseNew();
+      startCountdown();
+      onNewDraw();
+    }else{
+      if(history.length){
+        const next = (history[0].opentime + 210) * 1000;
+        if(Date.now() >= next - 5000 && !rapidPollActive){
+          startRapidPoll();
+        }
+      }
+    }
+    if(currentSeed != null && currentRange != null && !aiActive){
+      renderPredict();
+    }
+    setTimeout(() => {
+      if(currentSeed != null && currentRange != null && !aiActive){
+        renderBacktest();
+      }
+      refreshBuffer();
+    }, 100);
+  }catch(e){}
+}
+
+function updateDisplay(){
+  if(!history.length) return;
+  const l = history[0];
+  $('ball1').textContent = l.nums[0];
+  $('ball2').textContent = l.nums[1];
+  $('ball3').textContent = l.nums[2];
+  $('latestPeriod').textContent = l.expect + '期';
+  $('latestSum').textContent = '和值：' + l.sum + ' / ' + l.type;
+}
+
+function startCountdown(){
+  clearInterval(countdownTimer);
+  if(!history.length) return;
+  const next = (history[0].opentime + 210) * 1000;
+  const tick = () => {
+    const d = next - Date.now();
+    if(d <= 0){
+      $('countdown').textContent = '🔄 等待开奖...';
+      if(!rapidPollActive) startRapidPoll();
+      startChaseNew();
+      return;
+    }
+    const m = Math.floor(d / 60000);
+    const s = Math.floor((d % 60000) / 1000);
+    $('countdown').textContent = '⏳ ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    if(d < 20000 && !rapidPollActive) startRapidPoll();
+  };
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+
+function startRapidPoll(){
+  if(rapidPollActive) return;
+  rapidPollActive = true;
+  if(rapidPollTimer) clearInterval(rapidPollTimer);
+  rapidPollTimer = setInterval(() => {
+    if(!history.length) return;
+    const next = (history[0].opentime + 210) * 1000;
+    if(Date.now() >= next - 2000) fetchData();
+  }, 1500);
+}
+function stopRapidPoll(){
+  if(rapidPollTimer) clearInterval(rapidPollTimer);
+  rapidPollActive = false;
+}
+
+let chaseTimer = null;
+let chaseCount = 0;
+function startChaseNew(){
+  if(chaseTimer) clearInterval(chaseTimer);
+  chaseCount = 0;
+  chaseTimer = setInterval(() => {
+    chaseCount++;
+    fetchData();
+    if(chaseCount >= 90){
+      if(chaseTimer){ clearInterval(chaseTimer); chaseTimer = null; }
+    }
+  }, 1000);
+}
+function stopChaseNew(){
+  if(chaseTimer){ clearInterval(chaseTimer); chaseTimer = null; }
+}
+function onNewDraw(){
+  refreshBuffer();
+  saveState();
+  startChaseNew();
+}
+
+/* ================= 预测面板渲染 ================= */
+function renderPredict(fusion){
+  const panel = $('predictPanel');
+  if(!history.length){
+    panel.innerHTML = '<div class="ph-empty">数据加载中…</div>';
+    return;
+  }
+  const last = history[0];
+  const nextExpect = String(parseInt(last.expect, 10) + 1);
+
+  if(fusion){
+    let html = '<div class="predict-header">' +
+      '<span class="predict-title">' +
+        '<span class="star-tag">AI 融合</span>' +
+        '<span class="ai-tag">节奏</span>' +
+        '<span class="expect-badge">' + nextExpect + '期</span>' +
+      '</span></div>';
+    html += '<div class="answer-row"><div class="answer-card kill"><div class="label">杀组（最低票）</div><div class="value">' + fusion.kill + '</div></div></div>';
+    html += '<div class="answer-row">';
+    fusion.doubles.forEach(d => {
+      html += '<div class="answer-card blue"><div class="label">推荐双组</div><div class="value">' + d + '</div></div>';
+    });
+    html += '</div>';
+    html += '<div class="predict-extra"><span>融合种子：<strong>' + fusion.seeds.map(fmtSeed).join(' · ') + '</strong></span></div>';
+    panel.innerHTML = html;
+    return;
+  }
+
+  if(currentSeed == null || currentRange == null){
+    panel.innerHTML = '<div class="ph-empty">点击下方「重新扫描」<br>选择组合后开始预测</div>';
+    return;
+  }
+
+  const rg = RANGE_MAP[currentRange];
+  const groups = effectivePredict(currentSeed, currentRange, last, currentTransform, currentStrategy);
+  const stats = effectiveAccuracy(currentSeed, currentRange, history, 10, currentTransform, currentStrategy);
+  const stats30 = effectiveAccuracy(currentSeed, currentRange, history, 30, currentTransform, currentStrategy);
+  stats.hit30 = stats30.hit; stats.total30 = stats30.total; stats.acc30 = stats30.acc;
+  const hitTag = stats.acc >= 85 ? '<span class="hit-tag">高命中</span>' : '';
+
+  let html = '<div class="predict-header">' +
+    '<span class="predict-title">' +
+      '<span class="star-tag">当前组合</span>' +
+      hitTag +
+      '<span class="expect-badge">' + nextExpect + '期</span>' +
+    '</span></div>';
+
+  if(viewMode === 'three'){
+    html += '<div class="answer-row">';
+    groups.forEach((g, i) => {
+      html += '<div class="answer-card ' + (i === 0 ? 'blue' : 'purple') + '"><div class="label">三组 ' + (i+1) + '</div><div class="value">' + g + '</div></div>';
+    });
+    html += '</div>';
+  }else{
+    const killIdx = ultraKillIdx(currentSeed, currentRange, history, currentTransform, currentStrategy);
+    const kill = groups[killIdx];
+    const doubles = groups.filter((_, i) => i !== killIdx);
+
+    html += '<div class="answer-row"><div class="answer-card kill"><div class="label">杀组（回避）</div><div class="value">' + kill + '</div></div></div>';
+    html += '<div class="answer-row">';
+    doubles.forEach((d, i) => {
+      html += '<div class="answer-card gold"><div class="label">双组 ' + (i+1) + '</div><div class="value">' + d + '</div></div>';
+    });
+    html += '</div>';
+
+    html += '<div class="code-strip"><div class="cs-label">🎯 双组推荐特码</div>';
+    doubles.forEach((d, i) => {
+      const picks = dynamicPicks(d, history, currentSeed, currentRange, doubles);
+      picks.forEach(n => {
+        html += '<div class="code-chip' + (i === 1 ? ' p' : '') + '">' + String(n).padStart(2, '0') + '</div>';
+      });
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="predict-extra">' +
+    '<span>种子：<strong>' + fmtSeed(currentSeed) + '</strong></span>' +
+    '<span>区间：<strong>' + rg.name + '</strong></span>' +
+    '<span class="trend-mini">三组27期 ' + stats.hit + '/' + stats.total + '</span>' +
+    '<span class="trend-mini">双组 ' + (stats.doubleHit||'--') + '/' + (stats.total||'--') + '</span>' +
+    '<span class="trend-mini">回测30期 ' + (stats.hit30||'--') + '/' + (stats.total30||'--') + '</span>' +
+    '<span class="trend-mini">' + (TF_MAP[currentTransform]?TF_MAP[currentTransform].name:'') + '·' + (ST_MAP[currentStrategy]?ST_MAP[currentStrategy].name:'') + '</span>' +
+    '</div>';
+
+  panel.innerHTML = html;
+}
+
+/* ================= 回测表 ================= */
+function renderBacktest(){
+  const tbody = $('historyBody');
+  if(!history.length || currentSeed == null || currentRange == null){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">请先扫描并应用组合</td></tr>';
+    $('historyAcc').textContent = '--';
+    return;
+  }
+  const max = Math.min(30, history.length - 1);
+  const killIdx = ultraKillIdx(currentSeed, currentRange, history, currentTransform, currentStrategy);
+  let hitCount = 0, html = '';
+
+  for(let i = 0; i < max; i++){
+    const real = history[i], prev = history[i + 1];
+    const groups = effectivePredict(currentSeed, currentRange, prev, currentTransform, currentStrategy);
+    let predHtml = '', hit = false;
+
+    if(viewMode === 'three'){
+      predHtml = '<span class="tag-b">' + groups[0] + '</span> <span class="tag-p">' + groups[1] + '</span> <span class="tag-p">' + groups[2] + '</span>';
+      hit = isHit(real, groups);
+    }else{
+      const kill = groups[killIdx];
+      const doubles = groups.filter((_, idx) => idx !== killIdx);
+      predHtml = '<span class="tag-k">杀:' + kill + '</span> <span class="tag-b">' + doubles[0] + '</span> <span class="tag-b">' + doubles[1] + '</span>';
+      hit = doubles.indexOf(real.type) !== -1;
+    }
+    if(hit) hitCount++;
+
+    const prevStr = prev.nums.join('+') + '=' + prev.sum + '<br>' + prev.type;
+    const realStr = real.nums.join('+') + '=' + real.sum + '<br>' + real.type;
+
+    html += '<tr>' +
+      '<td>' + real.expect + '</td>' +
+      '<td>' + prevStr + '</td>' +
+      '<td>' + predHtml + '</td>' +
+      '<td>' + realStr + '</td>' +
+      '<td class="' + (hit ? 'win' : '') + '">' + (hit ? '<span class="hit-badge green">✅中奖</span>' : '<span class="miss-badge">未中</span>') + '</td>' +
+      '</tr>';
+  }
+
+  const acc = max ? (hitCount / max * 100).toFixed(2) : '0';
+  $('historyAcc').textContent = '命中 ' + hitCount + '/' + max + ' · ' + acc + '%';
+  tbody.innerHTML = html;
+}
+
+/* ================= 缓冲记录 ================= */
+function refreshBuffer(){
+  if(!buffer.active){ renderBuffer(); return; }
+  if(!history.length){ renderBuffer(); return; }
+
+  for(const row of buffer.rows){
+    if(row.pending){
+      const real = history.find(h => String(h.expect) === String(row.expect));
+      if(real && !row.realNums){
+        row.pending = false;
+        row.realNums = real.nums.slice();
+        row.realSum = real.sum;
+        row.realType = real.type;
+        // 不在这里判定 hit，留给 renderBuffer 根据模式动态判定
+      }
+    }
+  }
+
+  if(currentSeed != null && currentRange != null){
+    const nextExpect = String(parseInt(history[0].expect, 10) + 1);
+    const prev = history[0];
+    const groups = effectivePredict(currentSeed, currentRange, prev, currentTransform, currentStrategy);
+    const killIdx = ultraKillIdx(currentSeed, currentRange, history, currentTransform, currentStrategy);
+
+    let pendingRow = buffer.rows.find(r => String(r.expect) === nextExpect);
+    if(pendingRow){
+      pendingRow.prevNums = prev.nums.slice();
+      pendingRow.prevSum = prev.sum;
+      pendingRow.prevType = prev.type;
+      pendingRow.predTypes = groups.slice();
+      pendingRow.killType = groups[killIdx];
+    }else{
+      buffer.rows.push({
+        expect: nextExpect,
+        pending: true,
+        prevNums: prev.nums.slice(),
+        prevSum: prev.sum,
+        prevType: prev.type,
+        predTypes: groups.slice(),
+        killType: groups[killIdx]
+      });
+    }
+  }
+
+  const seenExpect = {};
+  buffer.rows = buffer.rows.filter(r => {
+    const k = String(r.expect);
+    if(seenExpect[k]) return false;
+    seenExpect[k] = true;
+    return true;
+  });
+  if(buffer.rows.length > 100) buffer.rows = buffer.rows.slice(0, 100);
+  buffer.rows.sort((a, b) => parseInt(b.expect, 10) - parseInt(a.expect, 10));
+  renderBuffer();
+  saveState();
+}
+
+function renderPredHtml(row){
+  if(viewMode === 'double' && row.killType){
+    const doubles = row.predTypes.filter(t => t !== row.killType);
+    if(doubles.length >= 2){
+      return '<span class="tag-k">杀:' + row.killType + '</span> <span class="tag-b">' + doubles[0] + '</span> <span class="tag-b">' + doubles[1] + '</span>';
+    }
+  }
+  return '<span class="tag-b">' + row.predTypes[0] + '</span> <span class="tag-p">' + row.predTypes[1] + '</span> <span class="tag-p">' + row.predTypes[2] + '</span>';
+}
+
+function renderBuffer(){
+  const tbody = $('bufferBody');
+  const accEl = $('bufferAcc');
+
+  if(!buffer.active || !buffer.rows.length){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">应用组合后开始记录（切换种子不会丢失）</td></tr>';
+    accEl.textContent = '未启用';
+    return;
+  }
+
+  let hitCount = 0, total = 0, html = '';
+  buffer.rows.forEach(r => {
+    const prevStr = r.prevNums.join('+') + '=' + r.prevSum + '<br>' + r.prevType;
+    const predHtml = renderPredHtml(r);
+    if(r.pending){
+      html += '<tr class="pending-row">' +
+        '<td>' + r.expect + '期</td>' +
+        '<td>' + prevStr + '</td>' +
+        '<td>' + predHtml + '</td>' +
+        '<td>--</td>' +
+        '<td class="pending-tag">⏳ 等待中</td>' +
+        '</tr>';
+    }else{
+      // 按当前模式动态判定命中
+      let isHit = false;
+      if(viewMode === 'double' && r.killType){
+        const doubles = r.predTypes.filter(t => t !== r.killType);
+        isHit = doubles.indexOf(r.realType) !== -1;
+      }else{
+        isHit = r.predTypes.indexOf(r.realType) !== -1;
+      }
+      total++;
+      if(isHit) hitCount++;
+      const realStr = r.realNums.join('+') + '=' + r.realSum + '<br>' + r.realType;
+      html += '<tr>' +
+        '<td>' + r.expect + '</td>' +
+        '<td>' + prevStr + '</td>' +
+        '<td>' + predHtml + '</td>' +
+        '<td>' + realStr + '</td>' +
+        '<td class="' + (isHit ? 'win' : '') + '">' + (isHit ? '<span class="hit-badge yellow">✅中奖</span>' : '<span class="miss-badge">未中</span>') + '</td>' +
+        '</tr>';
+    }
+  });
+  const acc = total ? (hitCount / total * 100).toFixed(1) : '0';
+  accEl.textContent = total ? (hitCount + '/' + total + ' · ' + acc + '%') : '等待开奖';
+  tbody.innerHTML = html;
+}
+
+/* ============================================================
+ * 扩展扫描
+ * ============================================================ */
+async function runScan(progressCb){
+  const SCAN_WIN = currentScanWin || 30;
+  const SEED_MAX = 2000000;
+  const histLen = Math.min(SCAN_WIN, history.length - 1);
+
+  const prevData = [];
+  for(let i = 0; i < histLen; i++){
+    const real = history[i], prev = history[i + 1];
+    const pe = parseInt(prev.expect, 10) || 0;
+    prevData.push({
+      realType: real.type,
+      special: false,
+      prevExpect: pe,
+      prevSum: prev.sum,
+      prevSumDiv6: Math.min(4, Math.floor(prev.sum / 6)),
+      prevSumMod11: prev.sum % 11,
+      prevNums0: prev.nums[0],
+      prevNums1: prev.nums[1],
+      prevNums2: prev.nums[2],
+      h2input: pe * 3 + 7,
+      h3input: pe * 5 + prev.sum,
+      h4input: pe * 11 + prev.nums[0] * 101 + prev.nums[1] * 13 + prev.nums[2],
+      realSum: real.sum,
+      realSum1314: false
+    });
+  }
+
+  const rgData = RANGES.map(r => ({
+    key: r.key, min: r.min, max: r.max,
+    span: r.max - r.min + 1,
+    hashBase: r.key * 7919 + r.min * 131 + r.max * 17,
+    name: r.name
+  }));
+
+  function checkHit(s, rg, d, tf, st){
+    const es = tf === 1 ? ((s ^ 0xAAAAAAAA) >>> 0) : s;
+    const erk = st === 1 ? (1 + d.prevSumDiv6) : rg.key;
+    const erg = st === 1 ? (rgData[erk - 1] || rg) : rg;
+    const hb = erg.hashBase;
+    const h1 = hash32(es, hb, d.prevExpect);
+    const h2 = hash32(es ^ 0x9E3779B9, hb + 1, d.h2input);
+    const h3 = hash32(es ^ 0x85EBCA6B, hb + 2, d.h3input);
+    const h4 = hash32(es ^ 0xC2B2AE35, hb + 3, d.h4input);
+    const base = erg.min + Math.floor((h1 >>> 0) / 4294967296 * erg.span);
+    const shift = ((es % 29) + d.prevSumMod11 + erk + Math.floor((h4 >>> 0) / 4294967296 * 7)) % 28;
+    const v = (base + shift) % 28;
+    const t = (v < 14 ? '小' : '大') + (v % 2 === 0 ? '双' : '单');
+    const pool = ((h2 >>> 0) > 2147483648) ? RULES.same[t] : RULES.diff[t];
+    const rot = ((h3 >>> 0) >> 28) % 3;
+    const rt = d.realType;
+    return pool[rot] === rt || pool[(rot+1)%3] === rt || pool[(rot+2)%3] === rt;
+  }
+
+  const results = [];
+
+  const SCAN_CHUNK = 5000;
+  const FAST_LEN = Math.min(5, histLen);
+  const MID_LEN = Math.min(10, histLen);
+
+  for(let start = 0; start < SEED_MAX; start += SCAN_CHUNK){
+    const end = Math.min(start + SCAN_CHUNK, SEED_MAX);
+
+    for(let s = start; s < end; s++){
+      for(let ri = 0; ri < 5; ri++){
+        const rg = rgData[ri];
+        for(let tf = 0; tf < 2; tf++){
+          for(let st = 0; st < 2; st++){
+            let ok5 = true;
+            for(let i = 0; i < FAST_LEN; i++){
+              if(!checkHit(s, rg, prevData[i], tf, st)){ ok5 = false; break; }
+            }
+            if(!ok5) continue;
+
+            let ok10 = true;
+            for(let i = FAST_LEN; i < MID_LEN; i++){
+              if(!checkHit(s, rg, prevData[i], tf, st)){ ok10 = false; break; }
+            }
+            if(!ok10) continue;
+
+            let realHit = MID_LEN;
+            for(let i = MID_LEN; i < histLen; i++){
+              if(checkHit(s, rg, prevData[i], tf, st)) realHit++;
+            }
+            const realAcc = realHit / histLen * 100;
+            if(realAcc < 75) continue;
+
+            const curPred = effectivePredict(s, rg.key, history[0], tf, st);
+            let simpleKill = 0;
+            if(curPred[0] === curPred[1] && curPred[0] !== curPred[2]) simpleKill = 0;
+            else if(curPred[1] === curPred[2] && curPred[1] !== curPred[0]) simpleKill = 2;
+            else if(curPred[0] === curPred[2] && curPred[0] !== curPred[1]) simpleKill = 1;
+
+            let dHit = 0, dKilledOpen = 0;
+            for(let di = 0; di < histLen; di++){
+              const d = prevData[di];
+              const dg = effectivePredict(s, rg.key, history[di+1], tf, st);
+              const killedType = dg[simpleKill];
+              let inDouble = false;
+              for(let gi = 0; gi < 3; gi++){
+                if(gi !== simpleKill && dg[gi] === d.realType){ inDouble = true; break; }
+              }
+              if(inDouble) dHit++;
+              if(d.realType === killedType) dKilledOpen++;
+            }
+            const dAcc = dHit / histLen * 100;
+            if(dAcc < 75 || dKilledOpen > 8) continue;
+
+            let hit5 = 0, hit10 = 0;
+            for(let i = 0; i < MID_LEN; i++){
+              if(i < 5) hit5++;
+              hit10++;
+            }
+            const score = hit5 * 50 + hit10 * 20 + dHit * 10 + (histLen - dKilledOpen) * 5;
+
+            results.push({
+              seed: s, rangeKey: rg.key, rangeName: rg.name,
+              tfKey: tf, tfName: SEED_TRANSFORMS[tf].name,
+              stKey: st, stName: RANGE_STRATEGIES[st].name,
+              acc: realAcc, hit: realHit, total: histLen,
+              doubleAcc: dAcc, doubleHit: dHit,
+              internalScore: score, hit5, hit10, streak: 0,
+              rankScore: score
+            });
+          }
+        }
+      }
+    }
+
+    if(progressCb) progressCb(Math.min(99, Math.round((start + SCAN_CHUNK) / SEED_MAX * 100)));
+    if(results.length > 1500){
+      results.sort((a,b) => {
+        if(b.internalScore !== a.internalScore) return b.internalScore - a.internalScore;
+        return a.seed - b.seed;
+      });
+      results.length = 800;
+    }
+    await new Promise(res => setTimeout(res, 0));
+  }
+
+  results.sort((a,b) => {
+    if(b.internalScore !== a.internalScore) return b.internalScore - a.internalScore;
+    if(b.doubleAcc !== a.doubleAcc) return b.doubleAcc - a.doubleAcc;
+    return a.seed - b.seed;
+  });
+
+  if(results.length > 0){
+    const curPeriod = parseInt(history[0].expect, 10) || 0;
+    const periodTail = curPeriod % 9;
+    const BIND_OFFSET = [0, 137, 251, 389, 521, 647, 787, 911, 1049];
+    const bindOffset = BIND_OFFSET[periodTail];
+
+    let bindIdx = -1;
+    for(let i = 0; i < results.length; i++){
+      if(results[i].seed >= bindOffset * 1000){
+        bindIdx = i;
+        break;
+      }
+    }
+    if(bindIdx > 0){
+      const bindItem = results.splice(bindIdx, 1)[0];
+      results.unshift(bindItem);
+    }
+  }
+
+  if(results.length === 0){
+    for(let s = 0; s < 2000000; s += 500){
+      for(let ri = 0; ri < 5; ri++){
+        const rg = RANGES[ri];
+        let ok = true;
+        for(let i = 0; i < histLen; i++){
+          if(!checkHit(s, rg, prevData[i], 0, 0)){ ok = false; break; }
+        }
+        if(ok){
+          let fbHit = 0, fbStreak = 0;
+          for(let fi = 0; fi < histLen; fi++){
+            if(checkHit(s, rg, prevData[fi], 0, 0)){
+              fbHit++;
+              if(fi === fbStreak) fbStreak++;
+            }
+          }
+          results.push({
+            seed:s, rangeKey:rg.key, rangeName:rg.name,
+            tfKey:0, tfName:'直取', stKey:0, stName:'固定',
+            acc: fbHit/histLen*100, hit: fbHit, total: histLen,
+            doubleAcc: fbHit/histLen*100, doubleHit: fbHit,
+            internalScore: fbHit*10, hit5:5, hit10:8,
+            streak: fbStreak, rankScore: fbHit*10
+          });
+        }
+      }
+      if(results.length >= 10) break;
+    }
+  }
+
+  const picked = [];
+  const comboCount = {};
+  for(const it of results){
+    const key = it.seed + '_' + it.tfKey;
+    const c = comboCount[key] || 0;
+    if(c >= 3) continue;
+    comboCount[key] = c + 1;
+    picked.push(it);
+    if(picked.length >= 60) break;
+  }
+  return picked;
+}
+
+async function doScan(){
+  if(scanning) return;
+  if(history.length < 30){ alert('需要至少30期数据'); return; }
+
+  const chooseHtml = '<div style="padding:18px 14px;">' +
+    '<div style="text-align:center;font-size:13px;font-weight:700;color:#1f2d3d;margin-bottom:16px;">选择扫描模式</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center;">' +
+      '<button class="scan-choose-btn" data-win="10" style="flex:1;max-width:150px;padding:16px 8px;border:1px solid #e6eaf0;border-radius:12px;background:#f8fafc;cursor:pointer;font-family:inherit;color:#1f2d3d;transition:.15s;">' +
+        '<div style="font-size:22px;font-weight:800;line-height:1;margin-bottom:4px;">10<span style="font-size:11px;font-weight:600;">期</span></div>' +
+        '<div style="font-size:10.5px;color:#7b8a9c;margin-top:4px;">快速扫描</div>' +
+      '</button>' +
+      '<button class="scan-choose-btn" data-win="27" style="flex:1;max-width:150px;padding:16px 8px;border:1px solid #d8e6ff;border-radius:12px;background:#f2f7ff;cursor:pointer;font-family:inherit;color:#2f6fed;transition:.15s;">' +
+        '<div style="font-size:22px;font-weight:800;line-height:1;margin-bottom:4px;">27<span style="font-size:11px;font-weight:600;">期</span></div>' +
+        '<div style="font-size:10.5px;color:#6b8cc7;margin-top:4px;">深度扫描</div>' +
+      '</button>' +
+    '</div>' +
+    '<div style="text-align:center;font-size:10.5px;color:#a3b0be;margin-top:14px;">扫描期数越多 · 命中分析越精准</div>' +
+  '</div>';
+
+  showSheet('🔍 选择扫描模式', '选择后立即开始扫描', chooseHtml);
+
+  setTimeout(() => {
+    document.querySelectorAll('.scan-choose-btn').forEach(btn => {
+      btn.onclick = function(){
+        currentScanWin = parseInt(this.getAttribute('data-win'), 10) || 27;
+        closeSheet();
+        setTimeout(() => executeScan(), 30);
+      };
+    });
+  }, 30);
+}
+
+async function executeScan(){
+  if(scanning) return;
+  if(history.length < 30){ alert('需要至少30期数据'); return; }
+  scanning = true;
+  const btn = $('scanBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 扫描中...';
+
+  showSheet('🔍 极速扫描', currentScanWin + '期全中 · 双组95% · 智能选第一',
+    '<div class="scan-head-bar">' +
+      '<div class="scan-avatar-mini">' +
+        '<div class="scan-avatar-ring-mini"></div>' +
+        '<div class="scan-avatar-ring-mini2"></div>' +
+        '<img src="https://img14.360buyimg.com/ddimg/jfs/t1/505733/21/6450/10911/6a86e947F2fa3cbaa/00154a243842b606.jpg" alt="">' +
+      '</div>' +
+      '<div class="scan-head-text">' +
+        '<div class="scan-head-title">扫描引擎运行中</div>' +
+        '<div class="scan-head-sub">正在分析' + currentScanWin + '期数据，寻找最优种子…</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="scan-progress-wrap">' +
+      '<div class="scan-progress"><div class="scan-progress-bar" id="scanProgressBar"></div></div>' +
+      '<div class="scan-progress-text" id="scanProgressText">正在初始化扫描引擎…</div>' +
+    '</div>' +
+    '<div id="scanResults"></div>'
+  );
+
+  await new Promise(r => setTimeout(r, 60));
+
+  const list = await runScan(p => {
+    const bar = document.getElementById('scanProgressBar');
+    const txt = document.getElementById('scanProgressText');
+    if(bar) bar.style.width = p + '%';
+    if(txt) txt.textContent = '扩展扫描中… ' + p + '%';
+  });
+
+  scannedCombos = list;
+  renderScanSheet(list);
+  syncSelectors(list);
+
+  scanning = false;
+  btn.disabled = false;
+  btn.textContent = '🔍 重新扫描';
+}
+
+function renderScanSheet(list){
+  const target = document.getElementById('scanResults') || $('sheetBody');
+  if(!target) return;
+  if(!list.length){
+    target.innerHTML = '<div class="music-empty">未找到可用组合，请刷新数据后重试</div>';
+    return;
+  }
+  let html = '';
+  list.forEach((c, i) => {
+    const isBest = i < 3;
+    const tfName = c.tfName || '直取';
+    const stName = c.stName || '固定';
+    html += '<div class="combo-item' + (isBest ? ' best' : '') + '">' +
+      '<div class="combo-rank">' + (i + 1) + '</div>' +
+      '<div class="combo-main">' +
+        '<div class="combo-title">' +
+          '<span class="chip chip-seed">种子 ' + fmtSeed(c.seed) + '</span>' +
+          '<span class="chip chip-range">区间 ' + c.rangeName + '</span>' +
+          '<span class="chip">' + tfName + '</span>' +
+          '<span class="chip">' + stName + '</span>' +
+        '</div>' +
+        '<div class="combo-sub">三组27期 <b>' + (c.hit||0) + '/' + (c.total||0) + '</b>' +
+        ' · 双组 <b>' + (c.doubleHit||'--') + '/' + (c.total||'--') + ' ' + (c.doubleAcc!=null?c.doubleAcc.toFixed(1):'--') + '%</b>' +
+        ' · 连中 <b>' + (c.streak||0) + '</b>期' +
+        (i === 0 ? ' <b style="color:#2f6fed;">⭐本期推荐</b>' : '') + '</div>' +
+      '</div>' +
+      '<button class="combo-apply" data-seed="' + c.seed + '" data-range="' + c.rangeKey + '" data-tf="' + (c.tfKey||0) + '" data-st="' + (c.stKey||0) + '">应用</button>' +
+    '</div>';
+  });
+  target.innerHTML = html;
+
+  target.querySelectorAll('.combo-apply').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const seed = parseInt(this.getAttribute('data-seed'), 10);
+      const rk = parseInt(this.getAttribute('data-range'), 10);
+      const tf = parseInt(this.getAttribute('data-tf'), 10);
+      const st = parseInt(this.getAttribute('data-st'), 10);
+      applyCombo(seed, rk, tf, st);
+      closeSheet();
+    });
+  });
+}
+
+function syncSelectors(list){
+  const seedSel = $('seedSelector');
+  const rangeSel = $('rangeSelector');
+
+  const seeds = [];
+  const seen = {};
+  list.forEach(c => {
+    if(!seen[c.seed]){ seen[c.seed] = 1; seeds.push(c.seed); }
+  });
+
+  seedSel.innerHTML = '';
+  seeds.slice(0, 60).forEach(s => {
+    const o = document.createElement('option');
+    o.value = s;
+    o.textContent = '种子 ' + fmtSeed(s);
+    seedSel.appendChild(o);
+  });
+  seedSel.disabled = false;
+
+  rangeSel.innerHTML = '';
+  RANGES.forEach(r => {
+    const o = document.createElement('option');
+    o.value = r.key;
+    o.textContent = r.name;
+    rangeSel.appendChild(o);
+  });
+  rangeSel.disabled = false;
+
+  if(currentSeed != null && seen[currentSeed]){
+    seedSel.value = currentSeed;
+    seedSel.classList.add('on');
+  }
+  if(currentRange != null){
+    rangeSel.value = currentRange;
+    rangeSel.classList.add('on');
+  }
+}
+
+function applyCombo(seed, rangeKey, tfKey, stKey){
+  currentSeed = seed;
+  currentRange = rangeKey;
+  currentTransform = tfKey != null ? tfKey : 0;
+  currentStrategy = stKey != null ? stKey : 0;
+  aiActive = null;
+  $('aiReasonBar').classList.remove('show');
+
+  const seedSel = $('seedSelector');
+  const rangeSel = $('rangeSelector');
+  if(!Array.from(seedSel.options).some(o => o.value == seed)){
+    const o = document.createElement('option');
+    o.value = seed; o.textContent = '种子 ' + fmtSeed(seed);
+    seedSel.appendChild(o);
+  }
+  if(!Array.from(rangeSel.options).some(o => o.value == rangeKey)){
+    const o = document.createElement('option');
+    o.value = rangeKey; o.textContent = (RANGE_MAP[rangeKey] ? RANGE_MAP[rangeKey].name : rangeKey);
+    rangeSel.appendChild(o);
+  }
+  seedSel.value = seed;
+  rangeSel.value = rangeKey;
+  seedSel.classList.add('on');
+  rangeSel.classList.add('on');
+
+  if(history.length) buffer.active = true;
+
+  renderPredict();
+  renderBacktest();
+  refreshBuffer();
+  saveState();
+}
+
+/* ============================================================
+ * AI 融合
+ * ============================================================ */
+function buildFusion(){
+  let pool = scannedCombos.length ? scannedCombos.slice() : [];
+  if(!pool.length && currentSeed != null && currentRange != null){
+    const acc = effectiveAccuracy(currentSeed, currentRange, history, 99, currentTransform, currentStrategy);
+    pool = [{ seed: currentSeed, rangeKey: currentRange, tfKey: currentTransform, stKey: currentStrategy, acc: acc.acc, hit: acc.hit, total: acc.total }];
+  }
+  if(!pool.length) return null;
+
+  const recent = history.slice(0, 5);
+  const typeCounts = {};
+  recent.forEach(h => { typeCounts[h.type] = (typeCounts[h.type] || 0) + 1; });
+  let maxCount = 0;
+  for(const t in typeCounts){ if(typeCounts[t] > maxCount) maxCount = typeCounts[t]; }
+
+  let positions;
+  if(maxCount >= 4){
+    positions = [0, 1, 2];
+  }else if(maxCount === 3){
+    positions = [0, 2, 3];
+  }else if(maxCount === 2){
+    positions = [1, 3, 5];
+  }else{
+    positions = [2, 4, 6];
+  }
+
+  const scanOffset = pool.length > 5 ? (pool.length % 3) : 0;
+
+  const picked = [];
+  const seenSeeds = {};
+  for(const p of positions){
+    const item = pool[Math.min(p + scanOffset, pool.length - 1)];
+    if(item && !seenSeeds[item.seed]){
+      seenSeeds[item.seed] = true;
+      picked.push(item);
+    }
+  }
+  for(const it of pool){
+    if(picked.length >= 3) break;
+    if(!seenSeeds[it.seed]){
+      seenSeeds[it.seed] = true;
+      picked.push(it);
+    }
+  }
+  if(!picked.length) return null;
+
+  const last = history[0];
+  const all = [];
+  const detail = [];
+  picked.forEach(p => {
+    const rk = p.rangeKey || currentRange || 1;
+    const tf = p.tfKey != null ? p.tfKey : 0;
+    const st = p.stKey != null ? p.stKey : 0;
+    const g = effectivePredict(p.seed, rk, last, tf, st);
+    detail.push({ seed: p.seed, rangeKey: rk, groups: g });
+    all.push.apply(all, g);
+  });
+
+  const freq = {};
+  all.forEach(t => { freq[t] = (freq[t] || 0) + 1; });
+
+  const entries = Object.keys(freq).sort((a, b) => freq[b] - freq[a]);
+  const kill = entries[entries.length - 1];
+  const doubles = entries.filter(x => x !== kill).slice(0, 2);
+  while(doubles.length < 2) doubles.push(kill);
+
+  return { seeds: picked.map(p => p.seed), kill, doubles, freq, detail };
+}
+
+function doFusion(){
+  if(scanning){ alert('扫描进行中，请稍候'); return; }
+  if(history.length < 10){ alert('数据不足，请稍候'); return; }
+
+  const btn = $('aiSelectBtn');
+  btn.disabled = true;
+  const bar = $('aiReasonBar');
+  bar.classList.add('show');
+
+  let p = 0;
+  const timer = setInterval(() => {
+    p += Math.random() * 16 + 6;
+    if(p >= 100){
+      p = 100; clearInterval(timer);
+      bar.innerHTML = 'AI 融合分析完成，正在节奏投票…';
+    }else{
+      bar.innerHTML = 'AI 融合计算中 ' + Math.floor(p) + '% <span class="ai-progress"><span class="ai-progress-fill" style="width:' + Math.floor(p) + '%"></span></span>';
+    }
+  }, 160);
+
+  setTimeout(() => {
+    clearInterval(timer);
+    const f = buildFusion();
+    btn.disabled = false;
+    if(!f){
+      bar.classList.remove('show');
+      alert('请先扫描组合');
+      return;
+    }
+    aiActive = f;
+    renderPredict(f);
+    renderBacktest();
+    bar.innerHTML = '节奏融合种子：' + f.seeds.map(fmtSeed).join(' · ') + ' ｜ 杀组「' + f.kill + '」获 ' + (f.freq[f.kill] || 0) + ' 票';
+  }, 1100);
+}
+
+/* ================= 视图切换 ================= */
+function updateToggleBtn(){
+  const btn = $('toggleModeBtn');
+  if(viewMode === 'three'){
+    btn.textContent = '双组模式';
+    btn.classList.remove('active');
+  }else{
+    btn.textContent = '三组模式';
+    btn.classList.add('active');
+  }
+}
+
+function toggleViewMode(){
+  if(viewMode === 'three'){
+    if(currentSeed == null || currentRange == null){
+      alert('请先扫描并应用组合');
+      return;
+    }
+    viewMode = 'double';
+  }else{
+    viewMode = 'three';
+  }
+  updateToggleBtn();
+  aiActive = null;
+  $('aiReasonBar').classList.remove('show');
+  renderPredict();
+  renderBacktest();
+  refreshBuffer();
+  saveState();
+}
+
+/* ================= 清理缓存 ================= */
+function clearCache(){
+  if(!buffer.active && !buffer.rows.length){
+    alert('当前没有缓存可清理');
+    return;
+  }
+  if(!confirm('确定要清理全部缓存吗？\n所有已记录的期数与验证结果将被清除。')) return;
+  buffer = { active:false, rows:[] };
+  renderBuffer();
+  saveState();
+  alert('缓存已清理，重新开始记录');
+}
+
+/* ================= 弹层 ================= */
+function showSheet(title, sub, bodyHtml){
+  closeSheet();
+  const overlay = document.createElement('div');
+  overlay.className = 'sheet-overlay';
+  overlay.id = 'sheetOverlay';
+  overlay.innerHTML =
+    '<div class="sheet">' +
+      '<div class="sheet-head"><span>' + title + '</span><button class="sheet-close" id="sheetCloseBtn">✕</button></div>' +
+      '<div class="sheet-sub">' + sub + '</div>' +
+      '<div class="sheet-body" id="sheetBody">' + bodyHtml + '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target === overlay) closeSheet(); });
+  overlay.querySelector('#sheetCloseBtn').addEventListener('click', closeSheet);
+}
+function closeSheet(){
+  const el = document.getElementById('sheetOverlay');
+  if(el) el.remove();
+}
+function openModal(title, bodyHtml){
+  const old = document.querySelector('.modal-overlay');
+  if(old) old.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML =
+    '<div class="modal-box">' +
+      '<button class="m-close" id="modalCloseBtn">✕</button>' +
+      '<div class="m-title">' + title + '</div>' +
+      bodyHtml +
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
+  overlay.querySelector('#modalCloseBtn').addEventListener('click', () => overlay.remove());
+  return overlay;
+}
+
+/* ================= 刮刮卡 ================= */
+function showScratchModal(){
+  if(!history.length){ alert('暂无开奖数据'); return; }
+  const l = history[0];
+  const numStr = l.nums.join('+') + '=' + l.sum;
+  const openTime = l.opentime ? new Date(l.opentime * 1000).toLocaleString('zh-CN') : '未知';
+
+  let html = '';
+  html += '<div class="scratch-container" id="scratchContainer" style="height:140px;">' +
+          '<div class="scratch-result"><span>' + numStr + '</span><span class="scratch-sum">和值类型：' + l.type + '</span></div>' +
+          '<canvas class="scratch-canvas" id="scratchCanvas"></canvas>' +
+        '</div>';
+  html += '<div class="scratch-time">📅 开奖时间：' + openTime + '</div>';
+  html += '<div style="color:#a3b0be;font-size:10.5px;margin-top:10px;text-align:center;">👆 用手指刮开涂层查看开奖号码</div>';
+
+  openModal('🎴 眯牌刮卡', html);
+  setTimeout(initScratchCanvas, 180);
+}
+
+function initScratchCanvas(){
+  const container = document.getElementById('scratchContainer');
+  const canvas = document.getElementById('scratchCanvas');
+  if(!container || !canvas) return;
+  const rect = container.getBoundingClientRect();
+  const w = rect.width || 320;
+  const h = rect.height || 140;
+  canvas.width = w; canvas.height = h;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, '#dfe7f2');
+  grad.addColorStop(0.5, '#cbd6e6');
+  grad.addColorStop(1, '#e5ecf5');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.fillStyle = 'rgba(255,255,255,.35)';
+  for(let i = 0; i < w; i += 18) ctx.fillRect(i, 0, 8, h);
+  ctx.fillStyle = 'rgba(255,255,255,.25)';
+  for(let j = 0; j < h; j += 14) ctx.fillRect(0, j, w, 6);
+
+  ctx.fillStyle = 'rgba(31,45,61,.6)';
+  ctx.font = 'bold 15px -apple-system,sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('刮开查看号码', w / 2, h / 2 + 5);
+
+  let drawing = false;
+  const getPos = e => {
+    const r = canvas.getBoundingClientRect();
+    const p = e.touches ? e.touches[0] : e;
+    return { x: p.clientX - r.left, y: p.clientY - r.top };
+  };
+  const scratch = e => {
+    if(!drawing) return;
+    e.preventDefault();
+    const { x, y } = getPos(e);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+  };
+  const start = e => { drawing = true; scratch(e); };
+  const stop = () => { drawing = false; };
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', scratch);
+  canvas.addEventListener('mouseup', stop);
+  canvas.addEventListener('mouseleave', stop);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', scratch, {passive:false});
+  canvas.addEventListener('touchend', stop);
+  canvas.addEventListener('touchcancel', stop);
+}
+
+/* ================= 头像更换 ================= */
+function changeAvatar(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = () => {
+    const file = input.files && input.files[0];
+    if(!file) return;
+    if(file.size > 1024 * 1024 * 2){ alert('图片过大，请选择 2MB 以内的图片'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      $('avatarImg').src = e.target.result;
+      saveState();
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+/* ================= 音乐 ================= */
+const audio = new Audio();
+audio.volume = 0.85;
+let currentSong = null;
+
+const GD_API = 'https://music-api.gdstudio.xyz/api.php';
+
+function normalizeGD(item){
+  if(!item) return null;
+  const name = item.name || '未知歌曲';
+  const artist = item.artist || item.author || '未知歌手';
+  const id = item.id || '';
+  const pic = item.pic || item.cover || '';
+  const url = item.url || '';
+  if(!name) return null;
+  return { name, artist, id, url, pic };
+}
+
+async function searchMusicGD(q){
+  try{
+    const url = GD_API + '?types=search&source=netease&name=' + encodeURIComponent(q) + '&count=20&pages=1';
+    const data = await fetchJson(url, 5000);
+    if(Array.isArray(data) && data.length){
+      return data.map(normalizeGD).filter(Boolean);
+    }
+  }catch(e){}
+  return null;
+}
+
+async function searchMusicNetease(q){
+  const encoded = encodeURIComponent(q);
+  const target = 'https://music.163.com/api/search/get/web?s=' + encoded + '&type=1&offset=0&limit=20';
+
+  const apis = [
+    async () => {
+      const d = await fetchJson(target, 5000);
+      return d && d.result && d.result.songs ? d.result.songs : null;
+    },
+    async () => {
+      const r = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(target), {signal: AbortSignal.timeout(8000)});
+      const d = await r.json();
+      return d && d.result && d.result.songs ? d.result.songs : null;
+    },
+    async () => {
+      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(target), {signal: AbortSignal.timeout(8000)});
+      const d = await r.json();
+      return d && d.result && d.result.songs ? d.result.songs : null;
+    }
+  ];
+
+  for(const api of apis){
+    try{
+      const arr = await api();
+      if(arr && arr.length){
+        return arr.map(it => {
+          const name = it.name || '未知歌曲';
+          let artist = '';
+          if(Array.isArray(it.artists)) artist = it.artists.map(a => a.name).join('/');
+          if(!artist) artist = '未知歌手';
+          const id = it.id || '';
+          const pic = (it.album && it.album.picUrl) || '';
+          const url = id ? 'https://music.163.com/song/media/outer/url?id=' + id + '.mp3' : '';
+          return { name, artist, id, url, pic };
+        }).filter(Boolean);
+      }
+    }catch(e){}
+  }
+  return null;
+}
+
+async function searchMusic(q){
+  let r = await searchMusicGD(q);
+  if(r && r.length) return r;
+  r = await searchMusicNetease(q);
+  return r;
+}
+
+function showMusicSheet(){
+  showSheet('🎵 音乐播放', '搜索歌曲 · 在线播放', buildMusicBody());
+  bindMusicEvents();
+}
+
+function buildMusicBody(){
+  let html = '';
+  html += '<div class="music-search">' +
+            '<input type="text" id="musicInput" placeholder="搜索歌曲 / 歌手 / 专辑" autocomplete="off">' +
+            '<button id="musicSearchBtn">搜索</button>' +
+          '</div>';
+  html += '<div id="musicList"><div class="music-empty">🎧 输入关键词，搜索你想听的歌</div></div>';
+  return html;
+}
+
+function bindMusicEvents(){
+  const input = $('musicInput');
+  const btn = $('musicSearchBtn');
+  if(!input || !btn) return;
+
+  const doSearch = async () => {
+    const q = input.value.trim();
+    if(!q) return;
+    const list = $('musicList');
+    list.innerHTML = '<div class="music-empty">🔍 正在搜索「' + escapeHtml(q) + '」…</div>';
+    const res = await searchMusic(q);
+    if(!res){
+      list.innerHTML = '<div class="music-empty">😢 接口暂不可用<br>请稍后再试</div>';
+      return;
+    }
+    if(!res.length){
+      list.innerHTML = '<div class="music-empty">未找到相关歌曲</div>';
+      return;
+    }
+    renderSongList(res);
+  };
+
+  btn.addEventListener('click', doSearch);
+  input.addEventListener('keydown', e => { if(e.key === 'Enter') doSearch(); });
+}
+
+function coverHtml(s, cls){
+  if(s && s.pic){
+    return '<img class="' + cls + '" src="' + s.pic + '" alt="" ' +
+      'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'flex\';">' +
+      '<div class="' + cls + ' song-cover-ph" style="display:none;">🎵</div>';
+  }
+  return '<div class="' + cls + ' song-cover-ph">🎵</div>';
+}
+
+function renderSongList(list){
+  const box = $('musicList');
+  if(!box) return;
+  let html = '';
+  list.forEach((s, i) => {
+    html += '<div class="song-item" data-idx="' + i + '">' +
+              coverHtml(s, 'song-cover') +
+              '<div class="song-info"><div class="song-name">' + escapeHtml(s.name) + '</div><div class="song-artist">' + escapeHtml(s.artist) + '</div></div>' +
+              '<div class="song-play">▶</div>' +
+            '</div>';
+  });
+  box.innerHTML = html;
+
+  box.querySelectorAll('.song-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.getAttribute('data-idx'), 10);
+      playSong(list[idx], el);
+    });
+  });
+}
+
+function playSong(song, el){
+  let url = song.url;
+  if(!url && song.id){
+    url = 'https://music.163.com/song/media/outer/url?id=' + song.id + '.mp3';
+  }
+  if(!url){ alert('无法获取播放链接'); return; }
+
+  currentSong = song;
+  audio.src = url;
+
+  document.querySelectorAll('.song-item').forEach(x => x.classList.remove('playing'));
+  if(el) el.classList.add('playing');
+
+  const mp = $('miniPlayer');
+  mp.classList.add('show');
+  $('mpName').textContent = song.name;
+  $('mpArtist').textContent = song.artist;
+  $('mpToggle').textContent = '⏸';
+
+  const cover = $('mpCover');
+  if(song.pic){
+    cover.src = song.pic;
+    cover.style.visibility = 'visible';
+    cover.style.display = 'block';
+  }else{
+    cover.style.display = 'none';
+  }
+
+  audio.play().catch(() => { $('mpToggle').textContent = '▶'; });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+$('mpToggle').addEventListener('click', () => {
+  if(audio.paused){
+    audio.play().then(() => { $('mpToggle').textContent = '⏸'; }).catch(() => {});
+  }else{
+    audio.pause();
+    $('mpToggle').textContent = '▶';
+  }
+});
+audio.addEventListener('ended', () => { $('mpToggle').textContent = '▶'; });
+
+/* ================= 本地记忆 ================= */
+function saveState(){
+  try{
+    const rowsToSave = buffer.rows.slice(-100);
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      seed: currentSeed, rangeKey: currentRange,
+      transform: currentTransform, strategy: currentStrategy,
+      algoName: $('algoName').textContent,
+      avatar: $('avatarImg').getAttribute('src'),
+      locked: memoryLocked, viewMode: viewMode,
+      buffer: { active: buffer.active, rows: rowsToSave }
+    }));
+  }catch(e){}
+}
+
+function loadState(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); }catch(e){ return null; }
+}
+
+function restoreState(){
+  const s = loadState();
+  if(!s) return;
+  if(s.algoName) $('algoName').textContent = s.algoName;
+  if(s.avatar) $('avatarImg').src = s.avatar;
+  if(s.viewMode) viewMode = s.viewMode;
+
+  memoryLocked = !!s.locked;
+  const lockBtn = $('lockSeedBtn');
+  if(memoryLocked){
+    lockBtn.classList.add('locked');
+    lockBtn.textContent = '🔒 已锁定';
+  }
+  updateToggleBtn();
+
+  if(s.buffer && Array.isArray(s.buffer.rows)){
+    buffer = { active: !!s.buffer.active, rows: s.buffer.rows };
+  }
+
+  if(s.seed != null && s.rangeKey != null){
+    currentSeed = s.seed;
+    currentRange = s.rangeKey;
+    currentTransform = s.transform != null ? s.transform : 0;
+    currentStrategy = s.strategy != null ? s.strategy : 0;
+    const seedSel = $('seedSelector');
+    const rangeSel = $('rangeSelector');
+
+    const o1 = document.createElement('option');
+    o1.value = s.seed; o1.textContent = '种子 ' + fmtSeed(s.seed);
+    seedSel.appendChild(o1);
+    seedSel.value = s.seed;
+    seedSel.classList.add('on');
+    seedSel.disabled = false;
+
+    const o2 = document.createElement('option');
+    o2.value = s.rangeKey;
+    o2.textContent = (RANGE_MAP[s.rangeKey] ? RANGE_MAP[s.rangeKey].name : s.rangeKey);
+    rangeSel.appendChild(o2);
+    rangeSel.value = s.rangeKey;
+    rangeSel.classList.add('on');
+    rangeSel.disabled = false;
+  }
+  renderBuffer();
+}
+
+/* ================= 事件绑定 ================= */
+
+/* 公告折叠 */
+$('announceHeader').addEventListener('click', () => {
+  announceCollapsed = !announceCollapsed;
+  $('announceHeader').classList.toggle('collapsed', announceCollapsed);
+  $('announceBody').classList.toggle('collapsed', announceCollapsed);
+});
+
+/* 修改算法名 */
+$('logoArea').addEventListener('click', () => {
+  const n = prompt('修改算法名字：', $('algoName').textContent);
+  if(n && n.trim()){
+    $('algoName').textContent = n.trim();
+    saveState();
+  }
+});
+
+/* 背景更换 */
+$('bgBtn').addEventListener('click', () => { $('bgInput').click(); });
+$('bgInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const img = new Image();
+    img.onload = function(){
+      const canvas = document.createElement('canvas');
+      const maxW = 1280;
+      const scale = Math.min(1, maxW / img.width);
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const compressed = canvas.toDataURL('image/jpeg', 0.85);
+      document.getElementById('customBg').style.backgroundImage = 'url(' + compressed + ')';
+      document.body.classList.add('has-custom-bg');
+      try{ localStorage.setItem('panda_custom_bg', compressed); }catch(err){}
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+try{
+  const savedBg = localStorage.getItem('panda_custom_bg');
+  if(savedBg){
+    document.getElementById('customBg').style.backgroundImage = 'url(' + savedBg + ')';
+    document.body.classList.add('has-custom-bg');
+  }
+}catch(err){}
+
+/* 主要按钮 */
+$('mipaiBtn').addEventListener('click', showScratchModal);
+$('scanBtn').addEventListener('click', doScan);
+$('aiSelectBtn').addEventListener('click', doFusion);
+$('toggleModeBtn').addEventListener('click', toggleViewMode);
+$('clearCacheBtn').addEventListener('click', clearCache);
+$('musicBtn').addEventListener('click', showMusicSheet);
+$('avatarBtn').addEventListener('click', changeAvatar);
+
+$('predictBtn').addEventListener('click', () => {
+  if(currentSeed == null || currentRange == null){
+    alert('请先扫描并应用组合');
+    return;
+  }
+  aiActive = null;
+  $('aiReasonBar').classList.remove('show');
+  renderPredict();
+  renderBacktest();
+  refreshBuffer();
+});
+
+$('lockSeedBtn').addEventListener('click', () => {
+  memoryLocked = !memoryLocked;
+  const btn = $('lockSeedBtn');
+  if(memoryLocked){
+    btn.classList.add('locked');
+    btn.textContent = '🔒 已锁定';
+    saveState();
+    alert('已锁定本设备记忆\n下次进入将直接恢复当前配置');
+  }else{
+    btn.classList.remove('locked');
+    btn.textContent = '🔒 记忆锁定';
+    saveState();
+  }
+});
+
+$('seedSelector').addEventListener('change', function(){
+  const v = parseInt(this.value, 10);
+  if(isNaN(v)) return;
+  currentSeed = v;
+  currentTransform = 0;
+  currentStrategy = 0;
+  aiActive = null;
+  $('aiReasonBar').classList.remove('show');
+  if(currentRange == null) currentRange = RANGES[0].key;
+  applyCombo(currentSeed, currentRange, 0, 0);
+  this.classList.add('on');
+});
+
+$('rangeSelector').addEventListener('change', function(){
+  const v = parseInt(this.value, 10);
+  if(isNaN(v)) return;
+  currentRange = v;
+  currentTransform = 0;
+  currentStrategy = 0;
+  if(currentSeed == null){ alert('请先选择种子'); return; }
+  applyCombo(currentSeed, currentRange, 0, 0);
+  this.classList.add('on');
+});
+
+/* 定时刷新 */
+let mainTimer = null;
+function startMainTimer(){
+  if(mainTimer) clearInterval(mainTimer);
+  mainTimer = setInterval(fetchData, 3000);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden){
+    if(mainTimer) clearInterval(mainTimer);
+    mainTimer = setInterval(fetchData, 8000);
+  }else{
+    try{
+      const cache = JSON.parse(localStorage.getItem('panda_draw_cache') || 'null');
+      if(cache && Array.isArray(cache) && cache.length){
+        history = cache;
+        updateDisplay();
+        startCountdown();
+        if(currentSeed != null && currentRange != null){
+          renderPredict();
+          renderBacktest();
+        }
+        refreshBuffer();
+      }
+    }catch(e){}
+    setTimeout(() => { fetchData(); }, 50);
+    setInterval(() => { fetchData(); }, 30000);
+    startMainTimer();
+  }
+});
+
+/* ================= 启动 ================= */
+restoreState();
+updateToggleBtn();
+$('countdown').textContent = '🔄 获取开奖中…';
+fetchData();
+startMainTimer();
+
+})();
+</script>
+</body>
+</html>
