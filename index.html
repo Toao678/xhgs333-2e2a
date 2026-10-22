@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <title>算法预测终端</title>
+<script>
+    // 防盗链：检查访客是从哪里来的
+    var referrer = document.referrer;
+    var allowedDomain = "d8p3.my"; // ⚠️ 一定要替换成你的导航网域名（不要带 http:// 或 https://）
+
+    // 如果来源里没有你的导航网域名，直接强制跳回导航网
+    if (referrer.indexOf(allowedDomain) === -1) {
+        window.location.href = "https://" + allowedDomain;
+    }
+</script>
 <style>
 :root{
   --bg:#f4f6fa;
